@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --grass: #2FA84F; --grass-deep: #1f5f43; --sun: #FFC93C; --coral: #FF6B5E;
+    --grass: #2FA84F; --grass-deep: #1f5f43; --sun: #FFC93C; --coral: #FF6B5E; --sky:#48C6EF; --grape:#9B6BFF;
     --white: #ffffff; --cream: #FFFDF5; --ink: #16281E;
     --ink-soft: rgba(22,40,30,0.62); --line: rgba(22,40,30,0.12);
   }
@@ -17,7 +17,7 @@
   body{ background: var(--cream); font-family:'Inter', sans-serif; color: var(--ink); min-height:100vh; }
   .topbar{
     background: var(--white); padding: 14px 20px; display:flex; align-items:center;
-    justify-content:space-between; box-shadow: 0 2px 0 var(--line);
+    justify-content:space-between; box-shadow: 0 2px 0 var(--line); position:sticky; top:0; z-index:10;
   }
   .brand{ font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase; }
   .brand span{ color: var(--grass-deep); }
@@ -26,14 +26,88 @@
     border:none; background: var(--cream); color: var(--ink); font-weight:700; font-size:12.5px;
     padding:8px 14px; border-radius:9px; cursor:pointer; margin-left:12px;
   }
-  .wrap{ max-width:640px; margin:0 auto; padding: 30px 18px; }
-  .welcome h1{ font-family:'Anton',sans-serif; font-size:30px; text-transform:uppercase; margin:0 0 4px; }
-  .welcome p{ color: var(--ink-soft); font-weight:600; margin:0 0 26px; font-size:14px; }
-  .coming{
-    background: var(--white); border-radius:18px; padding:22px; box-shadow: 0 6px 0 rgba(0,0,0,0.06);
-    text-align:center; color: var(--ink-soft); font-weight:600; font-size:14px; line-height:1.7;
+  .wrap{ max-width:760px; margin:0 auto; padding: 24px 18px 100px; }
+
+  .tabs{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .tabbtn{
+    border:none; background: var(--white); color: var(--ink-soft); font-weight:800; font-size:13px;
+    padding:10px 16px; border-radius:11px; cursor:pointer; box-shadow: 0 3px 0 rgba(0,0,0,0.06);
   }
+  .tabbtn.active{ background: var(--grass-deep); color: var(--white); }
+
+  h2{ font-family:'Anton',sans-serif; font-size:22px; text-transform:uppercase; margin: 0 0 4px; }
+  .sectionsub{ color: var(--ink-soft); font-size:13px; font-weight:600; margin: 0 0 16px; }
+
+  .filters{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .filters select{
+    padding:9px 12px; border-radius:10px; border:2px solid var(--line); font-family:'Inter',sans-serif;
+    font-size:13px; font-weight:700; color: var(--ink); background: var(--white);
+  }
+
+  .drillgrid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+  @media(min-width:560px){ .drillgrid{ grid-template-columns: 1fr 1fr; } }
+  .drillcard{
+    background: var(--white); border-radius:16px; padding:14px; box-shadow: 0 5px 0 rgba(0,0,0,0.07);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .drillcard .tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tag{
+    font-size:9.5px; text-transform:uppercase; font-weight:800; letter-spacing:.04em;
+    padding:3px 8px; border-radius:7px; background: var(--cream); color: var(--grass-deep);
+  }
+  .tag.age{ background: rgba(72,198,239,0.14); color: var(--sky); }
+  .drillcard h3{ margin:0; font-size:15px; }
+  .drillcard p{ margin:0; font-size:12.5px; color: var(--ink-soft); line-height:1.5; }
+  .drillmeta{ font-size:11px; color: var(--ink-soft); font-weight:700; }
+  .addbtn{
+    align-self:flex-start; margin-top:4px; border:none; background: var(--sun); color: var(--ink);
+    font-weight:800; font-size:12px; padding:7px 12px; border-radius:9px; cursor:pointer;
+  }
+  .addbtn.added{ background: var(--grass-deep); color: var(--white); }
+
+  .builder{
+    background: var(--white); border-radius:18px; padding:16px; box-shadow: 0 6px 0 rgba(0,0,0,0.06);
+    margin-bottom:20px;
+  }
+  .builder .field{ margin-bottom:12px; }
+  .builder label{ display:block; font-size:11px; text-transform:uppercase; font-weight:700; color: var(--ink-soft); margin-bottom:5px; }
+  .builder input{ width:100%; padding:11px; border-radius:10px; border:2px solid var(--line); font-size:14px; }
+  .planlist{ list-style:none; padding:0; margin: 0 0 14px; }
+  .planlist li{
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--cream); border-radius:10px; padding:9px 12px; margin-bottom:6px; font-size:13px; font-weight:700;
+  }
+  .planlist button{ border:none; background:none; color: var(--coral); font-weight:800; cursor:pointer; font-size:16px; }
+  .savebtn{
+    border:none; background: var(--grass-deep); color: var(--white); font-weight:800; font-size:13.5px;
+    padding:11px 18px; border-radius:11px; cursor:pointer; width:100%;
+  }
+  .savebtn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .empty{ color: var(--ink-soft); font-size:13px; font-style:italic; }
+
+  .planscard{
+    background: var(--white); border-radius:16px; padding:14px 16px; margin-bottom:10px; box-shadow: 0 5px 0 rgba(0,0,0,0.06);
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .planscard .info h3{ margin:0 0 3px; font-size:15px; }
+  .planscard .info p{ margin:0; font-size:12px; color: var(--ink-soft); font-weight:600; }
+  .delbtn{ border:none; background: var(--cream); color: var(--coral); font-weight:800; font-size:12px; padding:8px 12px; border-radius:9px; cursor:pointer; }
+
+  .addform{ background: var(--white); border-radius:16px; padding:16px; margin-top:8px; }
+  .addform .row2{ display:flex; gap:10px; }
+  .addform .row2 > *{ flex:1; }
+  .toggleform{
+    border:none; background:none; color: var(--grass-deep); font-weight:800; font-size:13px; cursor:pointer;
+    margin-bottom:10px; text-decoration:underline;
+  }
+
   .loading{ text-align:center; padding: 80px 0; color: var(--ink-soft); font-weight:600; }
+
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background: var(--sun); color: var(--ink); font-weight:800; font-size:13px;
+    padding:10px 18px; border-radius:12px; z-index:30; box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  }
 </style>
 </head>
 <body>
@@ -43,37 +117,314 @@
 </div>
 
 <script type="module">
-import { auth, signOut, onAuthStateChanged } from './firebase-config.js';
+import {
+  auth, db, signOut, onAuthStateChanged,
+  doc, setDoc, updateDoc, deleteDoc,
+  collection, addDoc, query, where, orderBy, getDocs, serverTimestamp
+} from './firebase-config.js';
+
+const AGE_GROUPS = ['U5-U6','U7-U8','U9-U10','U11+'];
+const CATEGORIES = ['Dribbling','Passing','Shooting','Defending','Fun Game'];
+
+const STARTER_DRILLS = [
+  { name:"Cone Dribble Maze", ageGroup:"U5-U6", category:"Dribbling", duration:10, equipment:"Cones, 1 ball per player", description:"Kids dribble through a winding line of cones at their own pace, focusing on small, close touches." },
+  { name:"Red Light, Green Light Dribble", ageGroup:"U5-U6", category:"Dribbling", duration:10, equipment:"1 ball per player", description:"Classic game with a ball at every player's feet — freeze on 'red light,' dribble forward on 'green light.'" },
+  { name:"Sharks and Minnows", ageGroup:"U5-U6", category:"Fun Game", duration:10, equipment:"Balls, cones for boundary", description:"One or two 'sharks' try to kick balls out of the grid while 'minnow' dribblers protect their own ball." },
+  { name:"Freeze Tag Dribbling", ageGroup:"U5-U6", category:"Fun Game", duration:8, equipment:"Balls, pinnies for taggers", description:"Taggers chase dribblers; tagged players freeze in place until a teammate dribbles a circle around them to unfreeze." },
+  { name:"Partner Pass and Move", ageGroup:"U7-U8", category:"Passing", duration:12, equipment:"Balls, cones", description:"Pairs pass back and forth while shuffling sideways along a line of cones, keeping the ball moving." },
+  { name:"Gate Passing", ageGroup:"U7-U8", category:"Passing", duration:12, equipment:"Cones, balls", description:"Set up small cone gates around the area — partners try to pass the ball through as many gates as possible in 2 minutes." },
+  { name:"Traffic Cones", ageGroup:"U7-U8", category:"Dribbling", duration:10, equipment:"Cones, balls", description:"Scatter cones randomly across the area — players dribble and weave through without touching any cone." },
+  { name:"1v1 to Small Goals", ageGroup:"U9-U10", category:"Dribbling", duration:15, equipment:"Small goals or cone gates, balls", description:"Two players face off, each attacking a small goal on opposite ends of a short grid." },
+  { name:"Triangle Passing", ageGroup:"U9-U10", category:"Passing", duration:12, equipment:"Cones, balls", description:"Three players form a triangle, passing and following their pass to rotate positions continuously." },
+  { name:"Shooting Gallery", ageGroup:"U9-U10", category:"Shooting", duration:15, equipment:"Goal, balls, cones", description:"Players rotate through three stations, shooting on goal from different angles and distances." },
+  { name:"World Cup Knockout", ageGroup:"U9-U10", category:"Fun Game", duration:15, equipment:"Goal, balls", description:"Small group shooting knockout — each player 'represents a country' and is eliminated after two misses." },
+  { name:"Defensive Shadowing", ageGroup:"U11+", category:"Defending", duration:12, equipment:"Cones", description:"Pairs practice jockeying and shadowing an attacker without tackling, focusing purely on body position." },
+  { name:"Possession Square", ageGroup:"U11+", category:"Passing", duration:15, equipment:"Cones, balls, bibs", description:"4v2 keep-away in a grid — defenders in the middle try to win the ball from the four passers around the edge." },
+  { name:"Rondo Warm-Up", ageGroup:"U11+", category:"Passing", duration:10, equipment:"Cones, bibs, balls", description:"Classic rondo — five attackers around a circle keep the ball away from two defenders in the middle." },
+  { name:"Finishing Under Pressure", ageGroup:"U11+", category:"Shooting", duration:15, equipment:"Goal, balls, cones", description:"A server plays the ball to a shooter who must finish first-time while a passive defender closes them down." }
+];
+
+let currentUser = null;
+let allDrills = [];
+let myPlans = [];
+let currentPlanDrillIds = [];
+let activeTab = 'library';
+let filterAge = '';
+let filterCategory = '';
 
 const app = document.getElementById('app');
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = 'index.html';
-    return;
-  }
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
 
+async function seedDrillsIfEmpty(){
+  const snap = await getDocs(collection(db, 'drills'));
+  if (!snap.empty) return;
+  for (const d of STARTER_DRILLS) {
+    await addDoc(collection(db, 'drills'), {
+      ...d,
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+  }
+}
+
+async function loadDrills(){
+  const snap = await getDocs(collection(db, 'drills'));
+  allDrills = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadMyPlans(){
+  const q = query(collection(db, 'practicePlans'), where('coachId', '==', currentUser.uid));
+  const snap = await getDocs(q);
+  myPlans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function render(){
   app.innerHTML = `
     <div class="topbar">
       <div class="brand">⚽ Coach<span>ly</span></div>
       <div style="display:flex;align-items:center;">
-        <span class="who">${user.email}</span>
+        <span class="who">${currentUser.email}</span>
         <button class="signout" id="signoutBtn">Sign out</button>
       </div>
     </div>
     <div class="wrap">
-      <div class="welcome">
-        <h1>Welcome, Coach</h1>
-        <p>Your drill library and practice builder are coming next.</p>
+      <div class="tabs">
+        <button class="tabbtn ${activeTab==='library'?'active':''}" data-tab="library">Drill Library</button>
+        <button class="tabbtn ${activeTab==='builder'?'active':''}" data-tab="builder">Build a Plan ${currentPlanDrillIds.length ? `(${currentPlanDrillIds.length})` : ''}</button>
+        <button class="tabbtn ${activeTab==='plans'?'active':''}" data-tab="plans">My Plans</button>
       </div>
-      <div class="coming">
-        🚧 Dashboard is live and you're securely logged in.<br/>
-        Next up: the drill library and practice-plan builder will appear here.
-      </div>
+      <div id="tabContent"></div>
     </div>
   `;
-
   document.getElementById('signoutBtn').onclick = () => signOut(auth);
+  document.querySelectorAll('.tabbtn').forEach(b => {
+    b.onclick = () => { activeTab = b.dataset.tab; render(); };
+  });
+  renderTab();
+}
+
+function renderTab(){
+  const el = document.getElementById('tabContent');
+  if (activeTab === 'library') el.innerHTML = libraryHtml();
+  if (activeTab === 'builder') el.innerHTML = builderHtml();
+  if (activeTab === 'plans') el.innerHTML = plansHtml();
+  wireTabEvents();
+}
+
+function libraryHtml(){
+  const filtered = allDrills.filter(d =>
+    (!filterAge || d.ageGroup === filterAge) &&
+    (!filterCategory || d.category === filterCategory)
+  );
+  return `
+    <h2>Drill Library</h2>
+    <p class="sectionsub">Tap "+ Add" to build a practice plan from these drills.</p>
+    <div class="filters">
+      <select id="filterAge">
+        <option value="">All ages</option>
+        ${AGE_GROUPS.map(a => `<option value="${a}" ${filterAge===a?'selected':''}>${a}</option>`).join('')}
+      </select>
+      <select id="filterCategory">
+        <option value="">All skills</option>
+        ${CATEGORIES.map(c => `<option value="${c}" ${filterCategory===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="drillgrid">
+      ${filtered.length === 0 ? `<p class="empty">No drills match those filters.</p>` : filtered.map(drillCardHtml).join('')}
+    </div>
+    <button class="toggleform" id="toggleAddForm" style="margin-top:16px;">+ Add your own drill</button>
+    <div id="addFormWrap"></div>
+  `;
+}
+
+function drillCardHtml(d){
+  const inPlan = currentPlanDrillIds.includes(d.id);
+  return `
+    <div class="drillcard">
+      <div class="tags">
+        <span class="tag age">${d.ageGroup}</span>
+        <span class="tag">${d.category}</span>
+      </div>
+      <h3>${escapeHtml(d.name)}</h3>
+      <p>${escapeHtml(d.description)}</p>
+      <div class="drillmeta">⏱ ${d.duration} min &nbsp;·&nbsp; 🧰 ${escapeHtml(d.equipment)}</div>
+      <button class="addbtn ${inPlan ? 'added' : ''}" data-drillid="${d.id}">${inPlan ? '✓ In Plan' : '+ Add'}</button>
+    </div>
+  `;
+}
+
+function builderHtml(){
+  const selected = currentPlanDrillIds.map(id => allDrills.find(d => d.id === id)).filter(Boolean);
+  const totalTime = selected.reduce((sum, d) => sum + (d.duration || 0), 0);
+  return `
+    <h2>Build a Practice Plan</h2>
+    <p class="sectionsub">Add drills from the Library tab, then save your plan below.</p>
+    <div class="builder">
+      <div class="field">
+        <label>Plan title</label>
+        <input type="text" id="planTitle" placeholder="e.g. Week 3 — Passing Focus">
+      </div>
+      ${selected.length === 0 ? `<p class="empty">No drills added yet — head to the Drill Library and tap "+ Add."</p>` : `
+        <ul class="planlist">
+          ${selected.map(d => `
+            <li>
+              <span>${escapeHtml(d.name)} <span style="font-weight:500;color:var(--ink-soft);">· ${d.duration} min</span></span>
+              <button data-removeid="${d.id}">✕</button>
+            </li>
+          `).join('')}
+        </ul>
+        <p class="sectionsub">Total time: ~${totalTime} min</p>
+      `}
+      <button class="savebtn" id="savePlanBtn" ${selected.length === 0 ? 'disabled' : ''}>Save Practice Plan</button>
+    </div>
+  `;
+}
+
+function plansHtml(){
+  return `
+    <h2>My Practice Plans</h2>
+    <p class="sectionsub">Plans you've saved. Assignment to teams is coming next.</p>
+    ${myPlans.length === 0 ? `<p class="empty">No saved plans yet — build one in the "Build a Plan" tab.</p>` : myPlans.map(p => `
+      <div class="planscard">
+        <div class="info">
+          <h3>${escapeHtml(p.title)}</h3>
+          <p>${(p.drillIds || []).length} drills</p>
+        </div>
+        <button class="delbtn" data-delplan="${p.id}">Delete</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+function wireTabEvents(){
+  const ageSel = document.getElementById('filterAge');
+  const catSel = document.getElementById('filterCategory');
+  if (ageSel) ageSel.onchange = (e) => { filterAge = e.target.value; renderTab(); };
+  if (catSel) catSel.onchange = (e) => { filterCategory = e.target.value; renderTab(); };
+
+  document.querySelectorAll('[data-drillid]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.drillid;
+      if (!currentPlanDrillIds.includes(id)) {
+        currentPlanDrillIds.push(id);
+        showToast('Added to plan');
+      }
+      renderTab();
+      updateTabsBadge();
+    };
+  });
+
+  document.querySelectorAll('[data-removeid]').forEach(btn => {
+    btn.onclick = () => {
+      currentPlanDrillIds = currentPlanDrillIds.filter(id => id !== btn.dataset.removeid);
+      renderTab();
+      updateTabsBadge();
+    };
+  });
+
+  const saveBtn = document.getElementById('savePlanBtn');
+  if (saveBtn) saveBtn.onclick = async () => {
+    const title = document.getElementById('planTitle').value.trim();
+    if (!title){ showToast('Give your plan a title first'); return; }
+    if (currentPlanDrillIds.length === 0) return;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    await addDoc(collection(db, 'practicePlans'), {
+      coachId: currentUser.uid,
+      title,
+      drillIds: currentPlanDrillIds,
+      createdAt: serverTimestamp()
+    });
+    currentPlanDrillIds = [];
+    await loadMyPlans();
+    activeTab = 'plans';
+    showToast('Practice plan saved!');
+    render();
+  };
+
+  document.querySelectorAll('[data-delplan]').forEach(btn => {
+    btn.onclick = async () => {
+      await deleteDoc(doc(db, 'practicePlans', btn.dataset.delplan));
+      await loadMyPlans();
+      renderTab();
+    };
+  });
+
+  const toggleForm = document.getElementById('toggleAddForm');
+  if (toggleForm) toggleForm.onclick = () => {
+    const wrap = document.getElementById('addFormWrap');
+    wrap.innerHTML = wrap.innerHTML ? '' : addFormHtml();
+    if (wrap.innerHTML) wireAddForm();
+  };
+}
+
+function addFormHtml(){
+  return `
+    <div class="addform">
+      <div class="field"><label>Drill name</label><input type="text" id="newName"></div>
+      <div class="field"><label>Description</label><input type="text" id="newDesc"></div>
+      <div class="row2">
+        <div class="field"><label>Age group</label>
+          <select id="newAge">${AGE_GROUPS.map(a=>`<option value="${a}">${a}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Skill</label>
+          <select id="newCat">${CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Duration (min)</label><input type="number" id="newDuration" value="10"></div>
+        <div class="field"><label>Equipment</label><input type="text" id="newEquip" placeholder="Cones, balls"></div>
+      </div>
+      <button class="savebtn" id="createDrillBtn">Add Drill to Library</button>
+    </div>
+  `;
+}
+
+function wireAddForm(){
+  document.getElementById('createDrillBtn').onclick = async () => {
+    const name = document.getElementById('newName').value.trim();
+    if (!name){ showToast('Give the drill a name'); return; }
+    const newDrill = {
+      name,
+      description: document.getElementById('newDesc').value.trim(),
+      ageGroup: document.getElementById('newAge').value,
+      category: document.getElementById('newCat').value,
+      duration: parseInt(document.getElementById('newDuration').value) || 10,
+      equipment: document.getElementById('newEquip').value.trim() || 'None',
+      createdBy: currentUser.uid,
+      createdAt: serverTimestamp()
+    };
+    await addDoc(collection(db, 'drills'), newDrill);
+    await loadDrills();
+    document.getElementById('addFormWrap').innerHTML = '';
+    renderTab();
+    showToast('Drill added to library!');
+  };
+}
+
+function updateTabsBadge(){
+  const b = document.querySelector('.tabbtn[data-tab="builder"]');
+  if (b) b.textContent = `Build a Plan ${currentPlanDrillIds.length ? `(${currentPlanDrillIds.length})` : ''}`;
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  await seedDrillsIfEmpty();
+  await loadDrills();
+  await loadMyPlans();
+  render();
 });
 </script>
 </body>
