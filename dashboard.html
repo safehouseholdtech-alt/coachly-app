@@ -105,7 +105,6 @@
   .tag.stage.goldenage{ background: var(--sun); color: var(--ink); }
   .tag.stage.breakthrough{ background: var(--coral); }
   .drillcard h3{ margin:0; font-size:15.5px; }
-  .focus{ font-size:11.5px; color: var(--grass-deep); font-weight:700; font-style:italic; margin:0; }
   .drillcard p.desc{ margin:0; font-size:12.5px; color: var(--ink-soft); line-height:1.5; }
   .drillmeta{ font-size:11px; color: var(--ink-soft); font-weight:700; }
 
@@ -121,9 +120,13 @@
   }
 
   .instructions{ background: var(--cream); border-radius:12px; padding:12px 14px; margin-top:4px; }
+  .instructions .focusline{ font-size:11.5px; color: var(--grass-deep); font-weight:700; font-style:italic; margin:0 0 10px; }
   .instructions h4{ margin:0 0 6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color: var(--grass-deep); }
   .instructions ol{ margin:0 0 12px; padding-left:18px; font-size:12.5px; line-height:1.6; color: var(--ink); }
   .instructions ol:last-child{ margin-bottom:0; }
+  .diagram-wrap{ background: var(--white); border-radius:10px; padding:10px; margin-bottom:12px; }
+  .diagram-wrap svg{ width:100%; height:auto; display:block; }
+  .diagram-caption{ font-size:10.5px; color: var(--ink-soft); font-weight:700; text-align:center; margin: 6px 0 0; }
 
   .builder{
     background: var(--white); border-radius:18px; padding:16px; box-shadow: 0 6px 0 rgba(0,0,0,0.06);
@@ -211,6 +214,7 @@ const STAGE_DRILLS = [
   {
     name: "Ball Mastery Circuit", ageGroup: "U5-U6", category: "Coordination",
     duration: 10, equipment: "1 ball per player",
+    diagram: "solo",
     focus: "Hundreds of light, repeated touches build comfort with the ball long before tactics matter.",
     description: "A rotating circuit of simple ball-mastery moves done in place: toe taps, sole rolls, and inside-outside touches.",
     coachInstructions: [
@@ -230,6 +234,7 @@ const STAGE_DRILLS = [
   {
     name: "Circle Keep-Away", ageGroup: "U5-U6", category: "Possession",
     duration: 10, equipment: "1 ball, 4-5 players",
+    diagram: "circle",
     focus: "A simple, playful introduction to protecting the ball and finding a free teammate.",
     description: "Three or four players form a small circle and keep the ball away from one player in the middle, using unlimited touches.",
     coachInstructions: [
@@ -249,6 +254,7 @@ const STAGE_DRILLS = [
   {
     name: "Freeze & Think Game", ageGroup: "U5-U6", category: "Fun Game",
     duration: 10, equipment: "Balls, small area",
+    diagram: "openarea",
     focus: "Builds the habit of looking up while dribbling, in its simplest, most playful form.",
     description: "Players dribble freely in a small area; on the coach's whistle, everyone freezes and answers a simple question about the game.",
     coachInstructions: [
@@ -266,6 +272,7 @@ const STAGE_DRILLS = [
   {
     name: "Coordination & Balance Games", ageGroup: "U5-U6", category: "Coordination",
     duration: 10, equipment: "Cones, agility ladder (optional), balls",
+    diagram: "ladder",
     focus: "General movement skill and balance at this age transfers directly into better ball control later.",
     description: "A mix of simple movement games (hopping, skipping, balancing) combined with light ball control, building general athleticism.",
     coachInstructions: [
@@ -286,6 +293,7 @@ const STAGE_DRILLS = [
   {
     name: "4v2 Keep-Away Square", ageGroup: "U7-U8", category: "Possession",
     duration: 12, equipment: "Cones, 1 ball, 6 players",
+    diagram: "square",
     focus: "Small-sided keep-away games force quick decisions far more often than a full-size game ever would.",
     description: "Four players form a square and keep the ball from two defenders in the middle, working toward two-touch passing.",
     coachInstructions: [
@@ -304,6 +312,7 @@ const STAGE_DRILLS = [
   {
     name: "Move-to-Beat Skills Ladder", ageGroup: "U7-U8", category: "Dribbling",
     duration: 12, equipment: "Cones, balls",
+    diagram: "coneline",
     focus: "Learning one clean move well, then testing it live, builds real 1v1 confidence.",
     description: "Players learn one signature 1v1 move (the step-over) against a cone, then try it against a passive defender.",
     coachInstructions: [
@@ -322,6 +331,7 @@ const STAGE_DRILLS = [
   {
     name: "4v4 Small-Sided Skills Game", ageGroup: "U7-U8", category: "Fun Game",
     duration: 15, equipment: "Cones for small goals, balls, 8 players",
+    diagram: "smallfield",
     focus: "Smaller games mean far more touches and 1v1 chances per player than a big, physical game.",
     description: "A small 4v4 game on a tight field with small goals, encouraging players to dribble past opponents rather than just kick the ball away.",
     coachInstructions: [
@@ -340,6 +350,7 @@ const STAGE_DRILLS = [
   {
     name: "5-Second Counter-Press Game", ageGroup: "U7-U8", category: "Fun Game",
     duration: 12, equipment: "Cones, bibs, balls, 6-8 players",
+    diagram: "smallfield",
     focus: "Turns the habit of winning the ball back quickly into a fun race instead of a rule.",
     description: "A small-sided game where the team that just lost the ball has 5 seconds to win it back before the drill resets in the other team's favor.",
     coachInstructions: [
@@ -360,6 +371,7 @@ const STAGE_DRILLS = [
   {
     name: "Technique + Insight Circuit", ageGroup: "U9-U10", category: "Dribbling",
     duration: 15, equipment: "Cones, balls, visual cue (colored bib or cone)",
+    diagram: "coneline",
     focus: "This is the best age to stack high technical reps with real decision-making, since both stick fastest here.",
     description: "Players dribble through a short course and must choose to pass or continue dribbling based on a coach's visual signal at the end.",
     coachInstructions: [
@@ -378,6 +390,7 @@ const STAGE_DRILLS = [
   {
     name: "Positional Keep-Away", ageGroup: "U9-U10", category: "Possession",
     duration: 15, equipment: "Cones, bibs, 1 ball, 8+ players",
+    diagram: "square",
     focus: "Introduces spatial awareness — learning to occupy useful space, not just chase the ball.",
     description: "A keep-away game where outside players must hold specific positions (like a mini 4-3-3 shape) rather than clustering around the ball.",
     coachInstructions: [
@@ -396,6 +409,7 @@ const STAGE_DRILLS = [
   {
     name: "Finishing Touches Circuit", ageGroup: "U9-U10", category: "Shooting",
     duration: 15, equipment: "Goal, balls, cones",
+    diagram: "fanstations",
     focus: "High-repetition shooting technique pays off fastest during this peak skill-learning window.",
     description: "Players rotate through three shooting stations, repeating the same clean technique from different angles and distances.",
     coachInstructions: [
@@ -414,6 +428,7 @@ const STAGE_DRILLS = [
   {
     name: "Problem-Solving 3v3+1", ageGroup: "U9-U10", category: "Possession",
     duration: 15, equipment: "Cones, bibs, balls, 7 players",
+    diagram: "smallfield",
     focus: "Letting players solve a numbers-up problem themselves builds decision-making faster than direct instruction.",
     description: "A 3v3 game with one neutral player who always plays for whichever team has the ball, creating a constant numbers-up situation to exploit.",
     coachInstructions: [
@@ -434,6 +449,7 @@ const STAGE_DRILLS = [
   {
     name: "8v2 Championship Keep-Away", ageGroup: "U11+", category: "Possession",
     duration: 15, equipment: "Cones, bibs, 1 ball, 10 players",
+    diagram: "circle",
     focus: "A full-tempo possession game that rewards the sharper decision-making this age group is ready for.",
     description: "Eight outside players keep the ball from two pressing defenders inside a tight grid, with a two-touch limit.",
     coachInstructions: [
@@ -452,6 +468,7 @@ const STAGE_DRILLS = [
   {
     name: "Position Play to Goal", ageGroup: "U11+", category: "Possession",
     duration: 18, equipment: "Cones, bibs, goal, balls, 8+ players",
+    diagram: "zones",
     focus: "This age can now handle more structured tactical concepts layered on top of technique.",
     description: "Teams build possession from the back through defined zones before working the ball into a finishing opportunity.",
     coachInstructions: [
@@ -471,6 +488,7 @@ const STAGE_DRILLS = [
   {
     name: "Feints & Step-Overs Gauntlet", ageGroup: "U11+", category: "Dribbling",
     duration: 15, equipment: "Cones, bibs, balls, 6+ players",
+    diagram: "gauntlet",
     focus: "Technique built years earlier now gets tested against real, live defensive pressure.",
     description: "Players run a gauntlet of 1v1 defenders, each requiring a different skill move (step-over, scissor, cut-back) to get past.",
     coachInstructions: [
@@ -489,6 +507,7 @@ const STAGE_DRILLS = [
   {
     name: "High-Intensity Counter-Press Circuit", ageGroup: "U11+", category: "Possession",
     duration: 18, equipment: "Cones, bibs, balls, 8+ players, timer",
+    diagram: "smallfield",
     focus: "The growth-spurt window is when interval-style physical training starts producing real fitness gains.",
     description: "Interval-based small-sided games at high intensity, with players immediately pressing to win the ball back after any loss of possession.",
     coachInstructions: [
@@ -631,7 +650,6 @@ function drillCardHtml(d){
         <span class="tag">${d.category}</span>
       </div>
       <h3>${escapeHtml(d.name)}</h3>
-      ${d.focus ? `<p class="focus">"${escapeHtml(d.focus)}"</p>` : ''}
       <p class="desc">${escapeHtml(d.description)}</p>
       <div class="drillmeta">⏱ ${d.duration} min &nbsp;·&nbsp; 🧰 ${escapeHtml(d.equipment)}</div>
       <div class="cardactions">
@@ -646,6 +664,8 @@ function drillCardHtml(d){
 function instructionsHtml(d){
   return `
     <div class="instructions">
+      ${d.focus ? `<p class="focusline">"${escapeHtml(d.focus)}"</p>` : ''}
+      ${d.diagram ? renderDiagram(d.diagram) : ''}
       ${d.coachInstructions ? `
         <h4>👨‍🏫 For the coach</h4>
         <ol>${d.coachInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
@@ -828,6 +848,57 @@ function wireAddForm(){
 function updateTabsBadge(){
   const b = document.querySelector('.tabbtn[data-tab="builder"]');
   if (b) b.textContent = `Build a Plan ${currentPlanDrillIds.length ? `(${currentPlanDrillIds.length})` : ''}`;
+}
+
+function renderDiagram(type){
+  const pitch = `<rect x="0" y="0" width="300" height="150" rx="10" fill="#EAF6ED"/>`;
+  const cone = (x,y) => `<polygon points="${x},${y-7} ${x-6},${y+5} ${x+6},${y+5}" fill="#FF6B5E"/>`;
+  const player = (x,y,color) => `<circle cx="${x}" cy="${y}" r="7" fill="${color}" stroke="#16281E" stroke-width="1"/>`;
+  const goal = (x,y,w,h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#16281E" stroke-width="2.5"/>`;
+  const label = (x,y,text) => `<text x="${x}" y="${y}" font-size="9" font-weight="700" fill="#16281E" text-anchor="middle">${text}</text>`;
+
+  let shapes = '';
+  if (type === 'solo'){
+    shapes = player(150,75,'#48C6EF') + `<circle cx="150" cy="90" r="4" fill="#FFC93C"/>` + label(150,40,'1 player, 1 ball');
+  } else if (type === 'circle'){
+    const cx=150, cy=75, r=45;
+    for (let i=0;i<6;i++){
+      const a = (i/6) * Math.PI*2;
+      shapes += player(cx + r*Math.cos(a), cy + r*Math.sin(a), '#2FA84F');
+    }
+    shapes += player(cx, cy, '#FF6B5E') + label(150,130,'Outside players vs. middle defender(s)');
+  } else if (type === 'square'){
+    const pts = [[90,45],[210,45],[90,105],[210,105]];
+    pts.forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
+    shapes += player(150,75,'#FF6B5E') + label(150,130,'Corners keep the ball from the middle');
+  } else if (type === 'coneline'){
+    [90,140,190,240].forEach(x => shapes += cone(x,75));
+    shapes += player(50,75,'#48C6EF') + label(150,120,'Dribble through, beat each cone/defender');
+  } else if (type === 'smallfield'){
+    shapes += goal(10,55,14,40) + goal(276,55,14,40);
+    shapes += player(90,50,'#2FA84F') + player(90,100,'#2FA84F') + player(210,50,'#FF6B5E') + player(210,100,'#FF6B5E');
+    shapes += label(150,130,'Small field, small goals, more touches');
+  } else if (type === 'fanstations'){
+    shapes += goal(130,20,40,16);
+    shapes += player(80,110,'#2FA84F') + player(150,120,'#2FA84F') + player(220,110,'#2FA84F');
+    shapes += label(150,140,'Rotate shooting stations around the goal');
+  } else if (type === 'zones'){
+    shapes += `<line x1="100" y1="10" x2="100" y2="140" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += `<line x1="200" y1="10" x2="200" y2="140" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += goal(276,55,14,40);
+    shapes += player(50,75,'#2FA84F') + player(150,75,'#2FA84F') + player(230,75,'#FF6B5E');
+    shapes += label(150,15,'Build-up → Midfield → Attack');
+  } else if (type === 'gauntlet'){
+    [90,150,210].forEach((x,i) => shapes += player(x,75,'#FF6B5E'));
+    shapes += player(40,75,'#48C6EF') + label(150,120,'Beat each defender with a different move');
+  } else if (type === 'ladder'){
+    for (let i=0;i<6;i++) shapes += `<rect x="${70+i*25}" y="60" width="6" height="30" fill="#9B6BFF"/>`;
+    shapes += player(30,75,'#48C6EF') + label(150,120,'Footwork through the ladder, then dribble');
+  } else if (type === 'openarea'){
+    [[80,50],[150,40],[220,60],[110,100],[190,110]].forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
+    shapes += label(150,135,'Free dribbling — freeze on the whistle');
+  }
+  return `<div class="diagram-wrap"><svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">${pitch}${shapes}</svg></div>`;
 }
 
 function escapeHtml(s){
