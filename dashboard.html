@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coachly — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grass: #2FA84F; --grass-deep: #1f5f43; --sun: #FFC93C; --coral: #FF6B5E;
+    --white: #ffffff; --cream: #FFFDF5; --ink: #16281E;
+    --ink-soft: rgba(22,40,30,0.62); --line: rgba(22,40,30,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: var(--cream); font-family:'Inter', sans-serif; color: var(--ink); min-height:100vh; }
+  .topbar{
+    background: var(--white); padding: 14px 20px; display:flex; align-items:center;
+    justify-content:space-between; box-shadow: 0 2px 0 var(--line);
+  }
+  .brand{ font-family:'Anton',sans-serif; font-size:20px; text-transform:uppercase; }
+  .brand span{ color: var(--grass-deep); }
+  .who{ font-size:13px; color: var(--ink-soft); font-weight:600; }
+  .signout{
+    border:none; background: var(--cream); color: var(--ink); font-weight:700; font-size:12.5px;
+    padding:8px 14px; border-radius:9px; cursor:pointer; margin-left:12px;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding: 30px 18px; }
+  .welcome h1{ font-family:'Anton',sans-serif; font-size:30px; text-transform:uppercase; margin:0 0 4px; }
+  .welcome p{ color: var(--ink-soft); font-weight:600; margin:0 0 26px; font-size:14px; }
+  .coming{
+    background: var(--white); border-radius:18px; padding:22px; box-shadow: 0 6px 0 rgba(0,0,0,0.06);
+    text-align:center; color: var(--ink-soft); font-weight:600; font-size:14px; line-height:1.7;
+  }
+  .loading{ text-align:center; padding: 80px 0; color: var(--ink-soft); font-weight:600; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading">Loading…</div>
+</div>
+
+<script type="module">
+import { auth, signOut, onAuthStateChanged } from './firebase-config.js';
+
+const app = document.getElementById('app');
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">⚽ Coach<span>ly</span></div>
+      <div style="display:flex;align-items:center;">
+        <span class="who">${user.email}</span>
+        <button class="signout" id="signoutBtn">Sign out</button>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="welcome">
+        <h1>Welcome, Coach</h1>
+        <p>Your drill library and practice builder are coming next.</p>
+      </div>
+      <div class="coming">
+        🚧 Dashboard is live and you're securely logged in.<br/>
+        Next up: the drill library and practice-plan builder will appear here.
+      </div>
+    </div>
+  `;
+
+  document.getElementById('signoutBtn').onclick = () => signOut(auth);
+});
+</script>
+</body>
+</html>
