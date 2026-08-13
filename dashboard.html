@@ -635,6 +635,7 @@ function libraryHtml(){
     </div>
     <button class="toggleform" id="toggleAddForm" style="margin-top:16px;">+ Add your own drill</button>
     <div id="addFormWrap"></div>
+    <button class="toggleform" id="resetLibraryBtn" style="margin-top:8px; color: var(--coral);">🔄 Reset drill library to latest version</button>
   `;
 }
 
@@ -798,6 +799,27 @@ function wireTabEvents(){
     const wrap = document.getElementById('addFormWrap');
     wrap.innerHTML = wrap.innerHTML ? '' : addFormHtml();
     if (wrap.innerHTML) wireAddForm();
+  };
+
+  const resetBtn = document.getElementById('resetLibraryBtn');
+  if (resetBtn) resetBtn.onclick = async () => {
+    const confirmed = confirm('This deletes every drill currently in the library (including any custom ones you added) and reloads the latest built-in set. Continue?');
+    if (!confirmed) return;
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Resetting…';
+    for (const d of allDrills) {
+      await deleteDoc(doc(db, 'drills', d.id));
+    }
+    for (const d of STAGE_DRILLS) {
+      await addDoc(collection(db, 'drills'), {
+        ...d,
+        createdBy: currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+    }
+    await loadDrills();
+    renderTab();
+    showToast('Drill library reset to the latest version');
   };
 }
 
