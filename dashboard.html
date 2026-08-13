@@ -26,7 +26,7 @@
     border:none; background: var(--cream); color: var(--ink); font-weight:700; font-size:12.5px;
     padding:8px 14px; border-radius:9px; cursor:pointer; margin-left:12px;
   }
-  .wrap{ max-width:760px; margin:0 auto; padding: 24px 18px 100px; }
+  .wrap{ max-width:780px; margin:0 auto; padding: 24px 18px 100px; }
 
   .tabs{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
   .tabbtn{
@@ -38,6 +38,22 @@
   h2{ font-family:'Anton',sans-serif; font-size:22px; text-transform:uppercase; margin: 0 0 4px; }
   .sectionsub{ color: var(--ink-soft); font-size:13px; font-weight:600; margin: 0 0 16px; }
 
+  .stagelegend{ display:grid; grid-template-columns: 1fr; gap:8px; margin-bottom:18px; }
+  @media(min-width:600px){ .stagelegend{ grid-template-columns: 1fr 1fr; } }
+  .stagecard{
+    border-radius:14px; padding:12px 14px; color: var(--white); cursor:pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12); transition: transform .1s ease;
+  }
+  .stagecard:active{ transform: scale(0.98); }
+  .stagecard.active{ outline: 3px solid var(--ink); outline-offset:2px; }
+  .stagecard.firsttouch{ background: var(--sky); }
+  .stagecard.gamesense{ background: var(--grape); }
+  .stagecard.goldenage{ background: var(--sun); color: var(--ink); }
+  .stagecard.breakthrough{ background: var(--coral); }
+  .stagecard .sname{ font-family:'Anton',sans-serif; font-size:16px; text-transform:uppercase; margin:0 0 2px; }
+  .stagecard .srange{ font-size:10.5px; font-weight:800; text-transform:uppercase; opacity:0.85; margin:0 0 4px; }
+  .stagecard .sblurb{ font-size:11.5px; font-weight:600; line-height:1.4; margin:0; }
+
   .filters{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
   .filters select{
     padding:9px 12px; border-radius:10px; border:2px solid var(--line); font-family:'Inter',sans-serif;
@@ -45,25 +61,40 @@
   }
 
   .drillgrid{ display:grid; grid-template-columns: 1fr; gap:12px; }
-  @media(min-width:560px){ .drillgrid{ grid-template-columns: 1fr 1fr; } }
   .drillcard{
     background: var(--white); border-radius:16px; padding:14px; box-shadow: 0 5px 0 rgba(0,0,0,0.07);
-    display:flex; flex-direction:column; gap:6px;
+    display:flex; flex-direction:column; gap:8px;
   }
-  .drillcard .tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .drillcard .tags{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .tag{
     font-size:9.5px; text-transform:uppercase; font-weight:800; letter-spacing:.04em;
     padding:3px 8px; border-radius:7px; background: var(--cream); color: var(--grass-deep);
   }
-  .tag.age{ background: rgba(72,198,239,0.14); color: var(--sky); }
-  .drillcard h3{ margin:0; font-size:15px; }
-  .drillcard p{ margin:0; font-size:12.5px; color: var(--ink-soft); line-height:1.5; }
+  .tag.stage{ color: var(--white); }
+  .tag.stage.firsttouch{ background: var(--sky); }
+  .tag.stage.gamesense{ background: var(--grape); }
+  .tag.stage.goldenage{ background: var(--sun); color: var(--ink); }
+  .tag.stage.breakthrough{ background: var(--coral); }
+  .drillcard h3{ margin:0; font-size:15.5px; }
+  .focus{ font-size:11.5px; color: var(--grass-deep); font-weight:700; font-style:italic; margin:0; }
+  .drillcard p.desc{ margin:0; font-size:12.5px; color: var(--ink-soft); line-height:1.5; }
   .drillmeta{ font-size:11px; color: var(--ink-soft); font-weight:700; }
+
+  .cardactions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .addbtn{
-    align-self:flex-start; margin-top:4px; border:none; background: var(--sun); color: var(--ink);
+    border:none; background: var(--sun); color: var(--ink);
     font-weight:800; font-size:12px; padding:7px 12px; border-radius:9px; cursor:pointer;
   }
   .addbtn.added{ background: var(--grass-deep); color: var(--white); }
+  .expandbtn{
+    border:none; background: none; color: var(--grass-deep); font-weight:800; font-size:12px;
+    cursor:pointer; text-decoration:underline; padding:7px 4px;
+  }
+
+  .instructions{ background: var(--cream); border-radius:12px; padding:12px 14px; margin-top:4px; }
+  .instructions h4{ margin:0 0 6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color: var(--grass-deep); }
+  .instructions ol{ margin:0 0 12px; padding-left:18px; font-size:12.5px; line-height:1.6; color: var(--ink); }
+  .instructions ol:last-child{ margin-bottom:0; }
 
   .builder{
     background: var(--white); border-radius:18px; padding:16px; box-shadow: 0 6px 0 rgba(0,0,0,0.06);
@@ -119,35 +150,338 @@
 <script type="module">
 import {
   auth, db, signOut, onAuthStateChanged,
-  doc, setDoc, updateDoc, deleteDoc,
+  doc, updateDoc, deleteDoc,
   collection, addDoc, query, where, orderBy, getDocs, serverTimestamp
 } from './firebase-config.js';
 
 const AGE_GROUPS = ['U5-U6','U7-U8','U9-U10','U11+'];
-const CATEGORIES = ['Dribbling','Passing','Shooting','Defending','Fun Game'];
+const CATEGORIES = ['Dribbling','Passing','Shooting','Defending','Fun Game','Possession','Coordination'];
 
-const STARTER_DRILLS = [
-  { name:"Cone Dribble Maze", ageGroup:"U5-U6", category:"Dribbling", duration:10, equipment:"Cones, 1 ball per player", description:"Kids dribble through a winding line of cones at their own pace, focusing on small, close touches." },
-  { name:"Red Light, Green Light Dribble", ageGroup:"U5-U6", category:"Dribbling", duration:10, equipment:"1 ball per player", description:"Classic game with a ball at every player's feet — freeze on 'red light,' dribble forward on 'green light.'" },
-  { name:"Sharks and Minnows", ageGroup:"U5-U6", category:"Fun Game", duration:10, equipment:"Balls, cones for boundary", description:"One or two 'sharks' try to kick balls out of the grid while 'minnow' dribblers protect their own ball." },
-  { name:"Freeze Tag Dribbling", ageGroup:"U5-U6", category:"Fun Game", duration:8, equipment:"Balls, pinnies for taggers", description:"Taggers chase dribblers; tagged players freeze in place until a teammate dribbles a circle around them to unfreeze." },
-  { name:"Partner Pass and Move", ageGroup:"U7-U8", category:"Passing", duration:12, equipment:"Balls, cones", description:"Pairs pass back and forth while shuffling sideways along a line of cones, keeping the ball moving." },
-  { name:"Gate Passing", ageGroup:"U7-U8", category:"Passing", duration:12, equipment:"Cones, balls", description:"Set up small cone gates around the area — partners try to pass the ball through as many gates as possible in 2 minutes." },
-  { name:"Traffic Cones", ageGroup:"U7-U8", category:"Dribbling", duration:10, equipment:"Cones, balls", description:"Scatter cones randomly across the area — players dribble and weave through without touching any cone." },
-  { name:"1v1 to Small Goals", ageGroup:"U9-U10", category:"Dribbling", duration:15, equipment:"Small goals or cone gates, balls", description:"Two players face off, each attacking a small goal on opposite ends of a short grid." },
-  { name:"Triangle Passing", ageGroup:"U9-U10", category:"Passing", duration:12, equipment:"Cones, balls", description:"Three players form a triangle, passing and following their pass to rotate positions continuously." },
-  { name:"Shooting Gallery", ageGroup:"U9-U10", category:"Shooting", duration:15, equipment:"Goal, balls, cones", description:"Players rotate through three stations, shooting on goal from different angles and distances." },
-  { name:"World Cup Knockout", ageGroup:"U9-U10", category:"Fun Game", duration:15, equipment:"Goal, balls", description:"Small group shooting knockout — each player 'represents a country' and is eliminated after two misses." },
-  { name:"Defensive Shadowing", ageGroup:"U11+", category:"Defending", duration:12, equipment:"Cones", description:"Pairs practice jockeying and shadowing an attacker without tackling, focusing purely on body position." },
-  { name:"Possession Square", ageGroup:"U11+", category:"Passing", duration:15, equipment:"Cones, balls, bibs", description:"4v2 keep-away in a grid — defenders in the middle try to win the ball from the four passers around the edge." },
-  { name:"Rondo Warm-Up", ageGroup:"U11+", category:"Passing", duration:10, equipment:"Cones, bibs, balls", description:"Classic rondo — five attackers around a circle keep the ball away from two defenders in the middle." },
-  { name:"Finishing Under Pressure", ageGroup:"U11+", category:"Shooting", duration:15, equipment:"Goal, balls, cones", description:"A server plays the ball to a shooter who must finish first-time while a passive defender closes them down." }
+// Each age group maps to one evidence-based developmental stage.
+const STAGE_INFO = {
+  'U5-U6': {
+    key: 'firsttouch', name: 'First Touch', range: 'Ages 4-6',
+    blurb: 'Free play and ball-at-feet time at home build comfort with the ball faster than formal coaching at this age.'
+  },
+  'U7-U8': {
+    key: 'gamesense', name: 'Game Sense', range: 'Ages 7-9',
+    blurb: 'Small-sided games teach game reading and decision-making better than structured instruction can at this age.'
+  },
+  'U9-U10': {
+    key: 'goldenage', name: 'Golden Age', range: 'Ages 9-12',
+    blurb: "A peak window for learning new motor skills — the best return on high-repetition technical training."
+  },
+  'U11+': {
+    key: 'breakthrough', name: 'Breakthrough', range: 'Ages 12-15',
+    blurb: 'The growth-spurt window where physical and tactical training start paying off much faster than before.'
+  }
+};
+
+const STAGE_DRILLS = [
+  // ---------------- FIRST TOUCH (U5-U6) — home habit-building, free play, ball mastery ----------------
+  {
+    name: "Ball Mastery Circuit", ageGroup: "U5-U6", category: "Coordination",
+    duration: 10, equipment: "1 ball per player",
+    focus: "Hundreds of light, repeated touches build comfort with the ball long before tactics matter.",
+    description: "A rotating circuit of simple ball-mastery moves done in place: toe taps, sole rolls, and inside-outside touches.",
+    coachInstructions: [
+      "Give each player their own ball and enough space to work individually.",
+      "Demonstrate each move slowly first: toe taps (top of foot), sole rolls (bottom of foot side to side), inside-outside taps.",
+      "Run each move for 45 seconds, with a short rest between.",
+      "Keep it fun — count reps out loud together, or turn it into a follow-the-coach game.",
+      "Praise effort and control over speed at this age."
+    ],
+    soloInstructions: [
+      "Do each move (toe taps, sole rolls, inside-outside taps) for 30 seconds, resting 15 seconds between.",
+      "Try to keep your eyes up instead of watching the ball the whole time.",
+      "Repeat the full circuit 2-3 times — it only takes about 10 minutes.",
+      "This is a great one to do daily at home, even for just 5-10 minutes — little and often beats one long session."
+    ]
+  },
+  {
+    name: "Circle Keep-Away", ageGroup: "U5-U6", category: "Possession",
+    duration: 10, equipment: "1 ball, 4-5 players",
+    focus: "A simple, playful introduction to protecting the ball and finding a free teammate.",
+    description: "Three or four players form a small circle and keep the ball away from one player in the middle, using unlimited touches.",
+    coachInstructions: [
+      "Mark a circle about 5 yards across with cones.",
+      "Put 4-5 players around the edge and 1 player in the middle.",
+      "Outside players pass the ball around the circle; the middle player tries to touch it.",
+      "No touch limit at this age — let them control the ball before passing.",
+      "Coach the pass: 'open your body, look before you pass, pass to a teammate who is free.'"
+    ],
+    soloInstructions: [
+      "Find a wall and stand a few steps back.",
+      "Pass the ball against the wall and control the return with one touch before passing again.",
+      "Try passing with the inside of both feet, not just your favorite foot.",
+      "Count how many passes in a row you can do without the ball rolling away."
+    ]
+  },
+  {
+    name: "Freeze & Think Game", ageGroup: "U5-U6", category: "Fun Game",
+    duration: 10, equipment: "Balls, small area",
+    focus: "Builds the habit of looking up while dribbling, in its simplest, most playful form.",
+    description: "Players dribble freely in a small area; on the coach's whistle, everyone freezes and answers a simple question about the game.",
+    coachInstructions: [
+      "Mark a small area and give each player a ball to dribble freely inside it.",
+      "Blow a whistle at random intervals — everyone freezes with a foot on the ball.",
+      "Ask a simple question: 'who is closest to you?' or 'point to the nearest cone.'",
+      "Resume dribbling after each freeze.",
+      "Keep questions light and fun — this is about building the habit of looking up, not testing them."
+    ],
+    soloInstructions: [
+      "Dribble around your yard freely for 30 seconds, then stop and name three things you can see around you without looking down.",
+      "Repeat 5-6 times — this builds the habit of keeping your head up while dribbling."
+    ]
+  },
+  {
+    name: "Coordination & Balance Games", ageGroup: "U5-U6", category: "Coordination",
+    duration: 10, equipment: "Cones, agility ladder (optional), balls",
+    focus: "General movement skill and balance at this age transfers directly into better ball control later.",
+    description: "A mix of simple movement games (hopping, skipping, balancing) combined with light ball control, building general athleticism.",
+    coachInstructions: [
+      "Set up a short line of cones or an agility ladder if you have one.",
+      "Have players hop, skip, and side-step through the course without a ball first.",
+      "Repeat the course while gently dribbling a ball alongside their feet.",
+      "Add a balance element: standing on one foot for 5 seconds between reps.",
+      "Keep the tone playful — this is about movement confidence, not soccer technique yet."
+    ],
+    soloInstructions: [
+      "Practice hopping on one foot, then the other, for 10 seconds each.",
+      "Try walking heel-to-toe in a straight line like a balance beam.",
+      "Once warmed up, dribble a ball slowly around your yard while stepping over small objects like a shoe or a stick."
+    ]
+  },
+
+  // ---------------- GAME SENSE (U7-U8) — small-sided games, discovery over instruction ----------------
+  {
+    name: "4v2 Keep-Away Square", ageGroup: "U7-U8", category: "Possession",
+    duration: 12, equipment: "Cones, 1 ball, 6 players",
+    focus: "Small-sided keep-away games force quick decisions far more often than a full-size game ever would.",
+    description: "Four players form a square and keep the ball from two defenders in the middle, working toward two-touch passing.",
+    coachInstructions: [
+      "Set up a 6x6 yard square with a player on each corner.",
+      "Two defenders start in the middle.",
+      "Corner players try to complete 10 passes without the middle players touching the ball.",
+      "Encourage two-touch (control, then pass) once players are comfortable.",
+      "If a defender wins the ball, swap them with whoever gave it away."
+    ],
+    soloInstructions: [
+      "Practice receiving with your back to a wall — have the ball played to you (or throw it against the wall yourself) and control it away from an imaginary defender behind you.",
+      "Work on 'opening up' your body so you can see the whole field before the ball arrives.",
+      "Do 5 sets of 10 wall passes, alternating feet."
+    ]
+  },
+  {
+    name: "Move-to-Beat Skills Ladder", ageGroup: "U7-U8", category: "Dribbling",
+    duration: 12, equipment: "Cones, balls",
+    focus: "Learning one clean move well, then testing it live, builds real 1v1 confidence.",
+    description: "Players learn one signature 1v1 move (the step-over) against a cone, then try it against a passive defender.",
+    coachInstructions: [
+      "Demonstrate the step-over slowly: fake to go one way with a circling foot motion, then push the ball the other way.",
+      "Have players practice it against a single cone, walking pace, 8-10 reps each.",
+      "Progress to a partner standing still (passive defender) as a target to beat.",
+      "Finally, let the defender move at half-speed so players time the move against real movement.",
+      "Focus on the fake being convincing, not on speed."
+    ],
+    soloInstructions: [
+      "Place one cone in your yard or driveway.",
+      "Practice the step-over move against the cone 15-20 times, alternating which way you go.",
+      "Once it feels smooth, try doing it while slowly jogging up to the cone instead of standing still."
+    ]
+  },
+  {
+    name: "4v4 Small-Sided Skills Game", ageGroup: "U7-U8", category: "Fun Game",
+    duration: 15, equipment: "Cones for small goals, balls, 8 players",
+    focus: "Smaller games mean far more touches and 1v1 chances per player than a big, physical game.",
+    description: "A small 4v4 game on a tight field with small goals, encouraging players to dribble past opponents rather than just kick the ball away.",
+    coachInstructions: [
+      "Mark a small field, roughly 20x15 yards, with a small goal (2 cones) on each end.",
+      "Play 4v4 with no goalkeepers — goals only count from inside a marked shooting zone.",
+      "Encourage dribbling at defenders rather than always passing — praise attempted skill moves even if they fail.",
+      "Keep games short (4-5 minutes) with quick rotations so everyone gets many touches.",
+      "Avoid over-coaching during play — let them solve problems themselves, then give feedback between games."
+    ],
+    soloInstructions: [
+      "Set up two small 'goals' using shoes or cones in your yard.",
+      "Practice dribbling from one end to the other, imagining a defender in your way, then shoot into the goal.",
+      "Time yourself and try to beat your best time across 5 attempts while staying in control of the ball."
+    ]
+  },
+  {
+    name: "5-Second Counter-Press Game", ageGroup: "U7-U8", category: "Fun Game",
+    duration: 12, equipment: "Cones, bibs, balls, 6-8 players",
+    focus: "Turns the habit of winning the ball back quickly into a fun race instead of a rule.",
+    description: "A small-sided game where the team that just lost the ball has 5 seconds to win it back before the drill resets in the other team's favor.",
+    coachInstructions: [
+      "Set up a small-sided game (3v3 or 4v4) in a tight grid.",
+      "When a team loses possession, start counting down loudly from 5.",
+      "If they win it back within 5 seconds, play continues normally.",
+      "If not, award the other team a bonus point or restart possession.",
+      "Keep the tone energetic — this should feel like a fun race, not a punishment."
+    ],
+    soloInstructions: [
+      "Dribble the ball, then intentionally knock it a few feet away from you.",
+      "Sprint to get it back within 5 seconds — time yourself with a phone or have someone count out loud.",
+      "Repeat 8-10 times to build the habit of reacting quickly to losing the ball."
+    ]
+  },
+
+  // ---------------- GOLDEN AGE (U9-U10) — peak motor-learning window, maximize technical reps ----------------
+  {
+    name: "Technique + Insight Circuit", ageGroup: "U9-U10", category: "Dribbling",
+    duration: 15, equipment: "Cones, balls, visual cue (colored bib or cone)",
+    focus: "This is the best age to stack high technical reps with real decision-making, since both stick fastest here.",
+    description: "Players dribble through a short course and must choose to pass or continue dribbling based on a coach's visual signal at the end.",
+    coachInstructions: [
+      "Set up a short cone dribbling course ending near the coach.",
+      "Hold up a colored bib or cone as players approach the end: one color means 'pass to a teammate,' another means 'shoot' or 'keep dribbling.'",
+      "Players must read the signal in real time and react.",
+      "Rotate signals randomly so players can't predict the outcome.",
+      "Debrief after: ask players what they saw and why they chose that option."
+    ],
+    soloInstructions: [
+      "Set up 4-5 cones in a line to dribble through.",
+      "Have a parent or sibling call out 'pass' or 'shoot' as you reach the last cone, and react immediately.",
+      "If training alone, place a small target (bucket or cone) to the side — dribble through, then decide whether to 'pass' toward the target or keep control."
+    ]
+  },
+  {
+    name: "Positional Keep-Away", ageGroup: "U9-U10", category: "Possession",
+    duration: 15, equipment: "Cones, bibs, 1 ball, 8+ players",
+    focus: "Introduces spatial awareness — learning to occupy useful space, not just chase the ball.",
+    description: "A keep-away game where outside players must hold specific positions (like a mini 4-3-3 shape) rather than clustering around the ball.",
+    coachInstructions: [
+      "Set up a larger grid (10x10 yards) with cones marking 5-6 outside positions.",
+      "Assign each outside player a fixed position they must stay near — don't let them chase the ball.",
+      "2 defenders press in the middle, trying to win possession or force a bad pass.",
+      "Coach the players NOT touching the ball: 'move to open a passing lane for your teammate.'",
+      "Rotate defenders every 2 minutes."
+    ],
+    soloInstructions: [
+      "Set up 3-4 cones in a rough triangle or square in your yard, each representing a teammate's position.",
+      "Dribble the ball between the cones as if passing to each 'teammate,' always checking your surroundings before moving.",
+      "Focus on quick, controlled touches — imagine a defender closing you down."
+    ]
+  },
+  {
+    name: "Finishing Touches Circuit", ageGroup: "U9-U10", category: "Shooting",
+    duration: 15, equipment: "Goal, balls, cones",
+    focus: "High-repetition shooting technique pays off fastest during this peak skill-learning window.",
+    description: "Players rotate through three shooting stations, repeating the same clean technique from different angles and distances.",
+    coachInstructions: [
+      "Set up three stations around the goal: straight-on, left angle, right angle.",
+      "Demonstrate a simple, repeatable shooting technique: plant foot beside the ball, strike through the center with the laces.",
+      "Rotate players through all three stations, 5-6 shots each.",
+      "Prioritize clean technique and consistent contact over power at this age.",
+      "Keep a light scoring game going to maintain enthusiasm."
+    ],
+    soloInstructions: [
+      "Set up a target (cone, bucket, or marked spot) inside a goal or against a wall.",
+      "Take 10 shots working on a clean, consistent strike rather than pure power.",
+      "Move to a slightly different angle every 10 shots and repeat."
+    ]
+  },
+  {
+    name: "Problem-Solving 3v3+1", ageGroup: "U9-U10", category: "Possession",
+    duration: 15, equipment: "Cones, bibs, balls, 7 players",
+    focus: "Letting players solve a numbers-up problem themselves builds decision-making faster than direct instruction.",
+    description: "A 3v3 game with one neutral player who always plays for whichever team has the ball, creating a constant numbers-up situation to exploit.",
+    coachInstructions: [
+      "Set up a medium-sized grid with two small goals or end-zones.",
+      "Play 3v3 with one neutral (bib-wearing) player who joins the attacking team whenever they have the ball.",
+      "Pose a question before starting: 'how can you use the extra player to create space?' — don't give the answer.",
+      "Let players experiment; pause briefly if needed to ask a guiding question rather than give an instruction.",
+      "After a few minutes, ask the team what worked and why."
+    ],
+    soloInstructions: [
+      "Set up two small targets to represent goals.",
+      "Dribble and pass against an imaginary defender (or a cone), thinking through: 'what's my best option here — dribble, pass, or shoot?'",
+      "Talk yourself through the decision out loud each time — it helps build the habit of reading the game."
+    ]
+  },
+
+  // ---------------- BREAKTHROUGH (U11+) — growth-spurt window, tactical + physical training pays off ----------------
+  {
+    name: "8v2 Championship Keep-Away", ageGroup: "U11+", category: "Possession",
+    duration: 15, equipment: "Cones, bibs, 1 ball, 10 players",
+    focus: "A full-tempo possession game that rewards the sharper decision-making this age group is ready for.",
+    description: "Eight outside players keep the ball from two pressing defenders inside a tight grid, with a two-touch limit.",
+    coachInstructions: [
+      "Set up an 8-yard circle or octagon with 8 players on the outside and 2 defenders inside.",
+      "Enforce a maximum two-touch limit to force quick decisions.",
+      "Track consecutive passes as a team record to chase — this adds competitive intensity.",
+      "Coach pressing triggers for defenders: 'press when the ball is played backward or square.'",
+      "Rotate any player who loses the ball into the middle."
+    ],
+    soloInstructions: [
+      "Set a timer for 2 minutes of continuous wall passes, one-touch only where possible.",
+      "Vary the angle you hit the wall from to simulate receiving from different directions.",
+      "Add a 'pressure' element: try to complete 20 clean one-touch passes before the timer runs out."
+    ]
+  },
+  {
+    name: "Position Play to Goal", ageGroup: "U11+", category: "Possession",
+    duration: 18, equipment: "Cones, bibs, goal, balls, 8+ players",
+    focus: "This age can now handle more structured tactical concepts layered on top of technique.",
+    description: "Teams build possession from the back through defined zones before working the ball into a finishing opportunity.",
+    coachInstructions: [
+      "Divide the field into three zones: build-up, midfield, and attacking third.",
+      "Players must complete a set number of passes in each zone before advancing the ball forward.",
+      "Encourage width — players spread across the zone rather than bunching centrally.",
+      "Once the ball reaches the attacking third, the team works for a shot on goal.",
+      "Coach patience: rushing the ball forward before the zone requirement is met resets possession to the defenders."
+    ],
+    soloInstructions: [
+      "Set up three cone 'zones' leading toward a goal or target.",
+      "Dribble the ball through each zone in turn, taking a few touches in each before advancing — simulating patient build-up.",
+      "Finish with a shot on the target from the final zone.",
+      "Repeat 8-10 times, varying your angle of approach to the goal each time."
+    ]
+  },
+  {
+    name: "Feints & Step-Overs Gauntlet", ageGroup: "U11+", category: "Dribbling",
+    duration: 15, equipment: "Cones, bibs, balls, 6+ players",
+    focus: "Technique built years earlier now gets tested against real, live defensive pressure.",
+    description: "Players run a gauntlet of 1v1 defenders, each requiring a different skill move (step-over, scissor, cut-back) to get past.",
+    coachInstructions: [
+      "Line up 3-4 defenders in a row, each about 5 yards apart, in a narrow lane.",
+      "Assign each defender a fixed role: light passive pressure only, not full tackling.",
+      "The attacker must use a different move to beat each defender in sequence.",
+      "Rotate attacker and defenders every 2-3 runs.",
+      "Coach the fake: 'sell the first move before you go the other way.'"
+    ],
+    soloInstructions: [
+      "Set up 3 cones in a line, about 5 yards apart.",
+      "Perform a different move at each cone: step-over at the first, scissor at the second, cut-back at the third.",
+      "Do 8-10 full runs, focusing on smoothness over speed at first, then add pace once comfortable."
+    ]
+  },
+  {
+    name: "High-Intensity Counter-Press Circuit", ageGroup: "U11+", category: "Possession",
+    duration: 18, equipment: "Cones, bibs, balls, 8+ players, timer",
+    focus: "The growth-spurt window is when interval-style physical training starts producing real fitness gains.",
+    description: "Interval-based small-sided games at high intensity, with players immediately pressing to win the ball back after any loss of possession.",
+    coachInstructions: [
+      "Set up a small-sided game (4v4) in a tight grid to force quick transitions.",
+      "Run in intervals: 3 minutes of high-intensity play, then 1 minute of walking recovery.",
+      "Emphasize an immediate counter-press the instant possession is lost — first player to the ball applies pressure.",
+      "Repeat for 3-4 rounds.",
+      "Track which team wins the ball back fastest most often, as a competitive element."
+    ],
+    soloInstructions: [
+      "Do a 3-minute high-effort dribbling and shooting sequence — dribble hard, shoot, sprint to retrieve the ball, repeat.",
+      "Rest 1 minute, walking, then repeat the sequence 3-4 times.",
+      "This builds the habit of sprinting to regain the ball immediately after any loose touch."
+    ]
+  }
 ];
 
 let currentUser = null;
 let allDrills = [];
 let myPlans = [];
 let currentPlanDrillIds = [];
+let expandedDrillIds = new Set();
 let activeTab = 'library';
 let filterAge = '';
 let filterCategory = '';
@@ -162,16 +496,17 @@ function showToast(msg){
   setTimeout(() => t.remove(), 2000);
 }
 
-async function seedDrillsIfEmpty(){
-  const snap = await getDocs(collection(db, 'drills'));
-  if (!snap.empty) return;
-  for (const d of STARTER_DRILLS) {
+async function seedStageDrillsIfNeeded(existingDrills){
+  const hasStageDrills = existingDrills.some(d => !!d.focus);
+  if (hasStageDrills) return false;
+  for (const d of STAGE_DRILLS) {
     await addDoc(collection(db, 'drills'), {
       ...d,
       createdBy: currentUser.uid,
       createdAt: serverTimestamp()
     });
   }
+  return true;
 }
 
 async function loadDrills(){
@@ -225,16 +560,26 @@ function libraryHtml(){
   );
   return `
     <h2>Drill Library</h2>
-    <p class="sectionsub">Tap "+ Add" to build a practice plan from these drills.</p>
+    <p class="sectionsub">Four developmental stages, each grounded in what actually works best for that age. Tap a stage to filter, or a drill to see full instructions.</p>
+    <div class="stagelegend">
+      ${AGE_GROUPS.map(age => {
+        const s = STAGE_INFO[age];
+        const isActive = filterAge === age;
+        return `
+          <div class="stagecard ${s.key} ${isActive ? 'active' : ''}" data-stagefilter="${age}">
+            <p class="sname">${s.name}</p>
+            <p class="srange">${s.range} · ${age}</p>
+            <p class="sblurb">${s.blurb}</p>
+          </div>
+        `;
+      }).join('')}
+    </div>
     <div class="filters">
-      <select id="filterAge">
-        <option value="">All ages</option>
-        ${AGE_GROUPS.map(a => `<option value="${a}" ${filterAge===a?'selected':''}>${a}</option>`).join('')}
-      </select>
       <select id="filterCategory">
         <option value="">All skills</option>
         ${CATEGORIES.map(c => `<option value="${c}" ${filterCategory===c?'selected':''}>${c}</option>`).join('')}
       </select>
+      ${filterAge ? `<button class="tabbtn" id="clearAgeFilter">✕ Clear age filter</button>` : ''}
     </div>
     <div class="drillgrid">
       ${filtered.length === 0 ? `<p class="empty">No drills match those filters.</p>` : filtered.map(drillCardHtml).join('')}
@@ -246,16 +591,39 @@ function libraryHtml(){
 
 function drillCardHtml(d){
   const inPlan = currentPlanDrillIds.includes(d.id);
+  const isExpanded = expandedDrillIds.has(d.id);
+  const stage = STAGE_INFO[d.ageGroup];
   return `
     <div class="drillcard">
       <div class="tags">
-        <span class="tag age">${d.ageGroup}</span>
+        ${stage ? `<span class="tag stage ${stage.key}">${stage.name}</span>` : ''}
+        <span class="tag">${d.ageGroup}</span>
         <span class="tag">${d.category}</span>
       </div>
       <h3>${escapeHtml(d.name)}</h3>
-      <p>${escapeHtml(d.description)}</p>
+      ${d.focus ? `<p class="focus">"${escapeHtml(d.focus)}"</p>` : ''}
+      <p class="desc">${escapeHtml(d.description)}</p>
       <div class="drillmeta">⏱ ${d.duration} min &nbsp;·&nbsp; 🧰 ${escapeHtml(d.equipment)}</div>
-      <button class="addbtn ${inPlan ? 'added' : ''}" data-drillid="${d.id}">${inPlan ? '✓ In Plan' : '+ Add'}</button>
+      <div class="cardactions">
+        <button class="addbtn ${inPlan ? 'added' : ''}" data-drillid="${d.id}">${inPlan ? '✓ In Plan' : '+ Add to Plan'}</button>
+        ${(d.coachInstructions || d.soloInstructions) ? `<button class="expandbtn" data-expandid="${d.id}">${isExpanded ? 'Hide instructions' : 'How to run this drill'}</button>` : ''}
+      </div>
+      ${isExpanded ? instructionsHtml(d) : ''}
+    </div>
+  `;
+}
+
+function instructionsHtml(d){
+  return `
+    <div class="instructions">
+      ${d.coachInstructions ? `
+        <h4>👨‍🏫 For the coach</h4>
+        <ol>${d.coachInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      ` : ''}
+      ${d.soloInstructions ? `
+        <h4>🏠 Training alone / with a parent</h4>
+        <ol>${d.soloInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+      ` : ''}
     </div>
   `;
 }
@@ -269,9 +637,9 @@ function builderHtml(){
     <div class="builder">
       <div class="field">
         <label>Plan title</label>
-        <input type="text" id="planTitle" placeholder="e.g. Week 3 — Passing Focus">
+        <input type="text" id="planTitle" placeholder="e.g. Week 3 — Golden Age Focus">
       </div>
-      ${selected.length === 0 ? `<p class="empty">No drills added yet — head to the Drill Library and tap "+ Add."</p>` : `
+      ${selected.length === 0 ? `<p class="empty">No drills added yet — head to the Drill Library and tap "+ Add to Plan."</p>` : `
         <ul class="planlist">
           ${selected.map(d => `
             <li>
@@ -304,9 +672,18 @@ function plansHtml(){
 }
 
 function wireTabEvents(){
-  const ageSel = document.getElementById('filterAge');
+  document.querySelectorAll('[data-stagefilter]').forEach(card => {
+    card.onclick = () => {
+      const age = card.dataset.stagefilter;
+      filterAge = (filterAge === age) ? '' : age;
+      renderTab();
+    };
+  });
+
+  const clearBtn = document.getElementById('clearAgeFilter');
+  if (clearBtn) clearBtn.onclick = () => { filterAge = ''; renderTab(); };
+
   const catSel = document.getElementById('filterCategory');
-  if (ageSel) ageSel.onchange = (e) => { filterAge = e.target.value; renderTab(); };
   if (catSel) catSel.onchange = (e) => { filterCategory = e.target.value; renderTab(); };
 
   document.querySelectorAll('[data-drillid]').forEach(btn => {
@@ -318,6 +695,15 @@ function wireTabEvents(){
       }
       renderTab();
       updateTabsBadge();
+    };
+  });
+
+  document.querySelectorAll('[data-expandid]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.expandid;
+      if (expandedDrillIds.has(id)) expandedDrillIds.delete(id);
+      else expandedDrillIds.add(id);
+      renderTab();
     };
   });
 
@@ -421,8 +807,9 @@ function escapeHtml(s){
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
-  await seedDrillsIfEmpty();
   await loadDrills();
+  const seeded = await seedStageDrillsIfNeeded(allDrills);
+  if (seeded) await loadDrills();
   await loadMyPlans();
   render();
 });
