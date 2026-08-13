@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coachly — Coach Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grass: #2FA84F;
+    --grass-deep: #1f5f43;
+    --sun: #FFC93C;
+    --coral: #FF6B5E;
+    --white: #ffffff;
+    --cream: #FFFDF5;
+    --ink: #16281E;
+    --ink-soft: rgba(22,40,30,0.62);
+    --line: rgba(22,40,30,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: linear-gradient(180deg, var(--grass) 0%, var(--grass-deep) 100%);
+    font-family:'Inter', sans-serif; color: var(--ink);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding: 24px;
+  }
+  .card{
+    background: var(--white); border-radius: 22px; padding: 32px 26px;
+    width:100%; max-width:380px; box-shadow: 0 10px 0 rgba(0,0,0,0.12);
+  }
+  .logo{ text-align:center; margin-bottom: 22px; }
+  .logo .badge{
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:800;
+    color: var(--grass-deep); margin-bottom:4px;
+  }
+  h1{
+    font-family:'Anton', sans-serif; font-weight:400; text-transform:uppercase;
+    font-size:34px; margin:0; letter-spacing:.02em;
+  }
+  .sub{ color: var(--ink-soft); font-size:13px; margin: 4px 0 0; font-weight:600; }
+
+  .tabs{ display:flex; background: var(--cream); border-radius:12px; padding:4px; margin-bottom:20px; }
+  .tab{
+    flex:1; text-align:center; padding:9px; border-radius:9px; font-weight:800; font-size:13px;
+    cursor:pointer; color: var(--ink-soft);
+  }
+  .tab.active{ background: var(--white); color: var(--ink); box-shadow: 0 2px 0 rgba(0,0,0,0.06); }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color: var(--ink-soft); margin-bottom:6px; }
+  .field input{
+    width:100%; padding:12px; border-radius:10px; border:2px solid var(--line);
+    font-size:15px; font-family:'Inter',sans-serif; color: var(--ink);
+  }
+  .field input:focus{ outline:none; border-color: var(--grass-deep); }
+
+  .btn{
+    width:100%; border:none; border-radius:12px; padding:13px; font-weight:800; font-size:14.5px;
+    cursor:pointer; background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400;
+  }
+  .btn:active{ transform: translateY(2px); box-shadow:none; }
+
+  .msg{ text-align:center; font-size:13px; font-weight:700; margin-top:14px; min-height:18px; }
+  .msg.error{ color: var(--coral); }
+  .msg.ok{ color: var(--grass-deep); }
+
+  .loading{ text-align:center; color: var(--white); font-weight:700; }
+  .hidden{ display:none; }
+</style>
+</head>
+<body>
+
+<div class="card" id="authCard">
+  <div class="logo">
+    <div class="badge">⚽ Coachly</div>
+    <h1>Coach Login</h1>
+    <p class="sub">Build practices. Assign homework. Keep kids improving.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tabLogin">Log In</div>
+    <div class="tab" id="tabSignup">Sign Up</div>
+  </div>
+
+  <form id="authForm">
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" required minlength="6" autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn" id="submitBtn">Log In</button>
+    <div class="msg" id="msg"></div>
+  </form>
+</div>
+
+<script type="module">
+import {
+  auth, db, doc, setDoc, serverTimestamp,
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged
+} from './firebase-config.js';
+
+let mode = 'login';
+const tabLogin = document.getElementById('tabLogin');
+const tabSignup = document.getElementById('tabSignup');
+const submitBtn = document.getElementById('submitBtn');
+const msg = document.getElementById('msg');
+const form = document.getElementById('authForm');
+
+function setMode(newMode){
+  mode = newMode;
+  tabLogin.classList.toggle('active', mode === 'login');
+  tabSignup.classList.toggle('active', mode === 'signup');
+  submitBtn.textContent = mode === 'login' ? 'Log In' : 'Create Account';
+  msg.textContent = '';
+}
+tabLogin.onclick = () => setMode('login');
+tabSignup.onclick = () => setMode('signup');
+
+// If already logged in, skip straight to the dashboard
+onAuthStateChanged(auth, (user) => {
+  if (user) window.location.href = 'dashboard.html';
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  msg.textContent = '';
+  msg.className = 'msg';
+  submitBtn.disabled = true;
+
+  try {
+    if (mode === 'signup') {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Create a coach profile document, matched to their auth uid
+      await setDoc(doc(db, 'coaches', cred.user.uid), {
+        email,
+        createdAt: serverTimestamp()
+      });
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    msg.textContent = friendlyError(err.code);
+    msg.className = 'msg error';
+    submitBtn.disabled = false;
+  }
+});
+
+function friendlyError(code){
+  switch(code){
+    case 'auth/email-already-in-use': return 'That email already has an account — try logging in instead.';
+    case 'auth/invalid-email': return 'That email doesn\'t look right.';
+    case 'auth/weak-password': return 'Password needs to be at least 6 characters.';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password': return 'Wrong email or password.';
+    case 'auth/user-not-found': return 'No account with that email — try signing up.';
+    default: return 'Something went wrong — try again.';
+  }
+}
+</script>
+</body>
+</html>
