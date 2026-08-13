@@ -38,11 +38,40 @@
   h2{ font-family:'Anton',sans-serif; font-size:22px; text-transform:uppercase; margin: 0 0 4px; }
   .sectionsub{ color: var(--ink-soft); font-size:13px; font-weight:600; margin: 0 0 16px; }
 
-  .stagelegend{ display:grid; grid-template-columns: 1fr; gap:8px; margin-bottom:18px; }
-  @media(min-width:600px){ .stagelegend{ grid-template-columns: 1fr 1fr; } }
+  .stagelegend{
+    display:grid; grid-template-columns: 1fr; gap:0; margin-bottom:18px;
+    position:relative;
+  }
+  @media(min-width:600px){ .stagelegend{ grid-template-columns: repeat(4, 1fr); gap:10px; } }
+  .stagepath{
+    display:none;
+  }
+  @media(min-width:600px){
+    .stagepath{
+      display:block; grid-column: 1 / -1; grid-row: 1;
+      height:6px; margin: 26px 0 -18px; border-radius:6px;
+      background: linear-gradient(90deg, var(--sky), var(--grape), var(--sun), var(--coral));
+      position:relative; z-index:0;
+    }
+  }
   .stagecard{
     border-radius:14px; padding:12px 14px; color: var(--white); cursor:pointer;
     box-shadow: 0 4px 0 rgba(0,0,0,0.12); transition: transform .1s ease;
+    position:relative; z-index:1; margin-bottom:8px;
+  }
+  @media(min-width:600px){ .stagecard{ margin-bottom:0; } }
+  .stagecard::before{
+    content: attr(data-step);
+    position:absolute; top:-9px; left:-9px; width:22px; height:22px; border-radius:50%;
+    background: var(--ink); color: var(--white); font-family:'Anton',sans-serif; font-size:11px;
+    display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  .stagecard::after{
+    content:"→"; position:absolute; right:-16px; top:50%; transform:translateY(-50%);
+    color: var(--ink-soft); font-weight:800; font-size:16px; display:none;
+  }
+  @media(min-width:600px){
+    .stagecard:not(:last-child)::after{ display:block; }
   }
   .stagecard:active{ transform: scale(0.98); }
   .stagecard.active{ outline: 3px solid var(--ink); outline-offset:2px; }
@@ -562,11 +591,12 @@ function libraryHtml(){
     <h2>Drill Library</h2>
     <p class="sectionsub">Four developmental stages, each grounded in what actually works best for that age. Tap a stage to filter, or a drill to see full instructions.</p>
     <div class="stagelegend">
-      ${AGE_GROUPS.map(age => {
+      <div class="stagepath"></div>
+      ${AGE_GROUPS.map((age, i) => {
         const s = STAGE_INFO[age];
         const isActive = filterAge === age;
         return `
-          <div class="stagecard ${s.key} ${isActive ? 'active' : ''}" data-stagefilter="${age}">
+          <div class="stagecard ${s.key} ${isActive ? 'active' : ''}" data-stagefilter="${age}" data-step="${i + 1}">
             <p class="sname">${s.name}</p>
             <p class="srange">${s.range} · ${age}</p>
             <p class="sblurb">${s.blurb}</p>
