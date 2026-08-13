@@ -12,10 +12,13 @@ import {
   doc,
   setDoc,
   getDoc,
+  updateDoc,
+  deleteDoc,
   collection,
   addDoc,
   query,
   where,
+  orderBy,
   getDocs,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -36,5 +39,6 @@ const db = getFirestore(app);
 export {
   auth, db,
   createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp
+  doc, setDoc, getDoc, updateDoc, deleteDoc,
+  collection, addDoc, query, where, orderBy, getDocs, serverTimestamp
 };
