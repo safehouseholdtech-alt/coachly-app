@@ -48,11 +48,13 @@
   .teamheader .sub{ color: rgba(255,255,255,0.85); font-size:13px; font-weight:700; }
 
   .assigngroup{ background: var(--white); border-radius:18px; padding:16px; margin-bottom:16px; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+  .assigngroup.weeklypick{ background: var(--cream); border: 2px dashed var(--grape); box-shadow:none; }
   .assigngroup h2{ font-family:'Anton',sans-serif; font-size:19px; text-transform:uppercase; margin:0 0 4px; }
   .assigngroup .duetag{
     display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
     padding:4px 9px; border-radius:8px; background: var(--cream); color: var(--grass-deep); margin-bottom:12px;
   }
+  .assigngroup .duetag.weekly{ background: var(--grape); color: var(--white); }
 
   .pdrillcard{ border: 2px solid var(--line); border-radius:14px; padding:12px; margin-bottom:10px; }
   .pdrillcard h3{ margin:0 0 4px; font-size:14.5px; }
@@ -242,8 +244,29 @@ function renderEntry(errorMsg){
   };
 }
 
+function getWeekIndex(){
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const diffMs = now - start;
+  const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+  return Math.floor(diffMs / oneWeekMs);
+}
+
+function getWeeklyPicks(){
+  const stageDrills = allDrills.filter(d => d.ageGroup === currentTeam.ageGroup);
+  if (stageDrills.length === 0) return [];
+  const weekIdx = getWeekIndex();
+  const picks = [];
+  const count = Math.min(3, stageDrills.length);
+  for (let i = 0; i < count; i++){
+    picks.push(stageDrills[(weekIdx + i) % stageDrills.length]);
+  }
+  return picks;
+}
+
 function renderTeamPage(){
   const upcoming = currentAssignments;
+  const weeklyPicks = getWeeklyPicks();
   app.innerHTML = `
     <div class="teamheader">
       <div class="kicker">⚽ ${escapeHtml(currentTeam.ageGroup)}</div>
@@ -251,9 +274,16 @@ function renderTeamPage(){
       <p class="sub">Your coach's homework, ready whenever you are.</p>
     </div>
     ${upcoming.length === 0
-      ? `<p class="empty">No homework assigned yet — check back after your coach sets some up!</p>`
+      ? `<p class="empty">No homework assigned yet — but check out this week's picks below!</p>`
       : upcoming.map(assignGroupHtml).join('')
     }
+    ${weeklyPicks.length > 0 ? `
+      <div class="assigngroup weeklypick">
+        <h2>This Week's Picks</h2>
+        <span class="duetag weekly">🔄 No assignment needed — rotates every week</span>
+        ${weeklyPicks.map(drillHtml).join('')}
+      </div>
+    ` : ''}
   `;
   wireTeamPageEvents();
 }
