@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitchPlan — My Team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grass: #2FA84F; --grass-deep: #1f5f43; --sun: #FFC93C; --coral: #FF6B5E; --sky:#48C6EF; --grape:#9B6BFF;
+    --white: #ffffff; --cream: #FFFDF5; --ink: #16281E;
+    --ink-soft: rgba(22,40,30,0.62); --line: rgba(22,40,30,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: linear-gradient(180deg, var(--grass) 0%, var(--grass-deep) 100%);
+    background-attachment: fixed;
+    font-family:'Inter', sans-serif; color: var(--ink); min-height:100vh;
+    padding-bottom: 60px;
+  }
+  .wrap{ max-width:600px; margin:0 auto; padding: 30px 18px; }
+
+  .entrycard{
+    background: var(--white); border-radius: 22px; padding: 32px 26px; margin-top: 40px;
+    box-shadow: 0 10px 0 rgba(0,0,0,0.12); text-align:center;
+  }
+  .entrycard .kicker{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color: var(--grass-deep); font-weight:800; margin-bottom:6px; }
+  .entrycard h1{ font-family:'Anton',sans-serif; font-size:32px; text-transform:uppercase; margin:0 0 6px; }
+  .entrycard p.sub{ color: var(--ink-soft); font-size:13.5px; font-weight:600; margin:0 0 22px; }
+  .codeinput{
+    width:100%; padding:16px; border-radius:14px; border:3px solid var(--line);
+    font-family:'Anton',sans-serif; font-size:26px; letter-spacing:.15em; text-transform:uppercase;
+    text-align:center; color:var(--ink); margin-bottom:16px;
+  }
+  .codeinput:focus{ outline:none; border-color: var(--grass-deep); }
+  .bigbtn{
+    width:100%; border:none; border-radius:14px; padding:15px; font-weight:800; font-size:15px;
+    cursor:pointer; background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400;
+  }
+  .bigbtn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .errmsg{ color: var(--coral); font-size:13px; font-weight:700; margin-top:12px; min-height:16px; }
+
+  .teamheader{ text-align:center; margin-bottom:22px; }
+  .teamheader .kicker{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color: var(--sun); font-weight:800; margin-bottom:6px; }
+  .teamheader h1{ font-family:'Anton',sans-serif; font-size:38px; text-transform:uppercase; color: var(--white); margin:0 0 4px; text-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+  .teamheader .sub{ color: rgba(255,255,255,0.85); font-size:13px; font-weight:700; }
+
+  .assigngroup{ background: var(--white); border-radius:18px; padding:16px; margin-bottom:16px; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+  .assigngroup h2{ font-family:'Anton',sans-serif; font-size:19px; text-transform:uppercase; margin:0 0 4px; }
+  .assigngroup .duetag{
+    display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    padding:4px 9px; border-radius:8px; background: var(--cream); color: var(--grass-deep); margin-bottom:12px;
+  }
+
+  .pdrillcard{ border: 2px solid var(--line); border-radius:14px; padding:12px; margin-bottom:10px; }
+  .pdrillcard h3{ margin:0 0 4px; font-size:14.5px; }
+  .pdrillcard .desc{ font-size:12px; color: var(--ink-soft); margin:0 0 8px; line-height:1.5; }
+  .pdrillcard .stagebadge{
+    font-size:9px; text-transform:uppercase; font-weight:800; padding:3px 7px; border-radius:6px;
+    color: var(--white); display:inline-block; margin-bottom:6px;
+  }
+  .pdrillcard .stagebadge.firsttouch{ background: var(--sky); }
+  .pdrillcard .stagebadge.gamesense{ background: var(--grape); }
+  .pdrillcard .stagebadge.goldenage{ background: var(--sun); color: var(--ink); }
+  .pdrillcard .stagebadge.breakthrough{ background: var(--coral); }
+
+  .diagram-wrap{ background: var(--cream); border-radius:10px; padding:10px; margin: 8px 0; }
+  .diagram-wrap svg{ width:100%; height:auto; display:block; }
+
+  .expandbtn{
+    border:none; background: none; color: var(--grass-deep); font-weight:800; font-size:12px;
+    cursor:pointer; text-decoration:underline; padding:4px 0;
+  }
+  .instrblock{ margin-top:8px; background: var(--cream); border-radius:10px; padding:10px 12px; }
+  .instrblock h4{ margin:0 0 6px; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color: var(--grass-deep); }
+  .instrblock ol{ margin:0; padding-left:16px; font-size:12px; line-height:1.6; }
+
+  .completerow{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .completebtn{
+    border:none; border-radius:10px; padding:9px 14px; font-weight:800; font-size:12px; cursor:pointer;
+    background: var(--grass-deep); color: var(--white); flex-shrink:0;
+  }
+  .completebtn.done{ background: var(--sun); color: var(--ink); }
+  .completecount{ font-size:11px; color: var(--ink-soft); font-weight:700; }
+
+  .loading{ text-align:center; padding: 80px 0; color: rgba(255,255,255,0.85); font-weight:600; }
+  .empty{ text-align:center; color: rgba(255,255,255,0.85); font-size:13.5px; font-weight:600; padding: 20px 0; }
+
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background: var(--sun); color: var(--ink); font-weight:800; font-size:13px;
+    padding:10px 18px; border-radius:12px; z-index:30; box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading…</div>
+</div>
+
+<script type="module">
+import {
+  db, doc, addDoc, collection, query, where, getDocs
+} from './firebase-config.js';
+
+const STAGE_INFO = {
+  'U5-U6': { key: 'firsttouch', name: 'First Touch' },
+  'U7-U8': { key: 'gamesense', name: 'Game Sense' },
+  'U9-U10': { key: 'goldenage', name: 'Golden Age' },
+  'U11+': { key: 'breakthrough', name: 'Breakthrough' }
+};
+
+const app = document.getElementById('app');
+let currentTeam = null;
+let currentAssignments = [];
+let allDrills = [];
+let allCompletions = [];
+let expandedDrillIds = new Set();
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML;
+}
+
+function renderDiagram(type){
+  const pitch = `<rect x="0" y="0" width="300" height="150" rx="10" fill="#EAF6ED"/>`;
+  const cone = (x,y) => `<polygon points="${x},${y-7} ${x-6},${y+5} ${x+6},${y+5}" fill="#FF6B5E"/>`;
+  const player = (x,y,color) => `<circle cx="${x}" cy="${y}" r="7" fill="${color}" stroke="#16281E" stroke-width="1"/>`;
+  const goal = (x,y,w,h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#16281E" stroke-width="2.5"/>`;
+  const label = (x,y,text) => `<text x="${x}" y="${y}" font-size="9" font-weight="700" fill="#16281E" text-anchor="middle">${text}</text>`;
+
+  let shapes = '';
+  if (type === 'solo'){
+    shapes = player(150,75,'#48C6EF') + `<circle cx="150" cy="90" r="4" fill="#FFC93C"/>` + label(150,40,'1 player, 1 ball');
+  } else if (type === 'circle'){
+    const cx=150, cy=75, r=45;
+    for (let i=0;i<6;i++){
+      const a = (i/6) * Math.PI*2;
+      shapes += player(cx + r*Math.cos(a), cy + r*Math.sin(a), '#2FA84F');
+    }
+    shapes += player(cx, cy, '#FF6B5E') + label(150,130,'Outside players vs. middle defender(s)');
+  } else if (type === 'square'){
+    const pts = [[90,45],[210,45],[90,105],[210,105]];
+    pts.forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
+    shapes += player(150,75,'#FF6B5E') + label(150,130,'Corners keep the ball from the middle');
+  } else if (type === 'coneline'){
+    [90,140,190,240].forEach(x => shapes += cone(x,75));
+    shapes += player(50,75,'#48C6EF') + label(150,120,'Dribble through, beat each cone/defender');
+  } else if (type === 'smallfield'){
+    shapes += goal(10,55,14,40) + goal(276,55,14,40);
+    shapes += player(90,50,'#2FA84F') + player(90,100,'#2FA84F') + player(210,50,'#FF6B5E') + player(210,100,'#FF6B5E');
+    shapes += label(150,130,'Small field, small goals, more touches');
+  } else if (type === 'fanstations'){
+    shapes += goal(130,20,40,16);
+    shapes += player(80,110,'#2FA84F') + player(150,120,'#2FA84F') + player(220,110,'#2FA84F');
+    shapes += label(150,140,'Rotate shooting stations around the goal');
+  } else if (type === 'zones'){
+    shapes += `<line x1="100" y1="10" x2="100" y2="140" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += `<line x1="200" y1="10" x2="200" y2="140" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += goal(276,55,14,40);
+    shapes += player(50,75,'#2FA84F') + player(150,75,'#2FA84F') + player(230,75,'#FF6B5E');
+    shapes += label(150,15,'Build-up → Midfield → Attack');
+  } else if (type === 'gauntlet'){
+    [90,150,210].forEach((x,i) => shapes += player(x,75,'#FF6B5E'));
+    shapes += player(40,75,'#48C6EF') + label(150,120,'Beat each defender with a different move');
+  } else if (type === 'ladder'){
+    for (let i=0;i<6;i++) shapes += `<rect x="${70+i*25}" y="60" width="6" height="30" fill="#9B6BFF"/>`;
+    shapes += player(30,75,'#48C6EF') + label(150,120,'Footwork through the ladder, then dribble');
+  } else if (type === 'openarea'){
+    [[80,50],[150,40],[220,60],[110,100],[190,110]].forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
+    shapes += label(150,135,'Free dribbling — freeze on the whistle');
+  }
+  return `<div class="diagram-wrap"><svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">${pitch}${shapes}</svg></div>`;
+}
+
+async function lookupTeam(code){
+  const q = query(collection(db, 'teams'), where('joinCode', '==', code.toUpperCase().trim()));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return { id: d.id, ...d.data() };
+}
+
+async function loadAssignments(teamId){
+  const q = query(collection(db, 'assignments'), where('teamId', '==', teamId));
+  const snap = await getDocs(q);
+  currentAssignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadAllDrills(){
+  const snap = await getDocs(collection(db, 'drills'));
+  allDrills = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadCompletions(teamId){
+  const q = query(collection(db, 'completions'), where('teamId', '==', teamId));
+  const snap = await getDocs(q);
+  allCompletions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function renderEntry(errorMsg){
+  app.innerHTML = `
+    <div class="entrycard">
+      <div class="kicker">⚽ PitchPlan</div>
+      <h1>Find Your Team</h1>
+      <p class="sub">Enter the join code your coach gave you.</p>
+      <input type="text" id="codeInput" class="codeinput" placeholder="ABC123" maxlength="6">
+      <button class="bigbtn" id="submitCodeBtn">View My Team</button>
+      <div class="errmsg">${errorMsg || ''}</div>
+    </div>
+  `;
+  const input = document.getElementById('codeInput');
+  const btn = document.getElementById('submitCodeBtn');
+  input.focus();
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') btn.click(); });
+  btn.onclick = async () => {
+    const code = input.value.trim();
+    if (!code) return;
+    btn.disabled = true;
+    btn.textContent = 'Looking…';
+    const team = await lookupTeam(code);
+    if (!team) {
+      renderEntry("Couldn't find a team with that code — check with your coach and try again.");
+      return;
+    }
+    currentTeam = team;
+    history.replaceState(null, '', `?code=${team.joinCode}`);
+    await loadAllDrills();
+    await loadAssignments(team.id);
+    await loadCompletions(team.id);
+    renderTeamPage();
+  };
+}
+
+function renderTeamPage(){
+  const upcoming = currentAssignments;
+  app.innerHTML = `
+    <div class="teamheader">
+      <div class="kicker">⚽ ${escapeHtml(currentTeam.ageGroup)}</div>
+      <h1>${escapeHtml(currentTeam.name)}</h1>
+      <p class="sub">Your coach's homework, ready whenever you are.</p>
+    </div>
+    ${upcoming.length === 0
+      ? `<p class="empty">No homework assigned yet — check back after your coach sets some up!</p>`
+      : upcoming.map(assignGroupHtml).join('')
+    }
+  `;
+  wireTeamPageEvents();
+}
+
+function assignGroupHtml(a){
+  const drills = (a.drillIds || []).map(id => allDrills.find(d => d.id === id)).filter(Boolean);
+  return `
+    <div class="assigngroup">
+      <h2>${escapeHtml(a.title)}</h2>
+      <span class="duetag">${a.ongoing ? '🔁 Ongoing' : a.dueDate ? `📅 Due ${escapeHtml(a.dueDate)}` : 'Assigned'}</span>
+      ${drills.map(drillHtml).join('')}
+    </div>
+  `;
+}
+
+function drillHtml(d){
+  const stage = STAGE_INFO[d.ageGroup];
+  const isExpanded = expandedDrillIds.has(d.id);
+  const count = allCompletions.filter(c => c.drillId === d.id).length;
+  return `
+    <div class="pdrillcard">
+      ${stage ? `<span class="stagebadge ${stage.key}">${stage.name}</span>` : ''}
+      <h3>${escapeHtml(d.name)}</h3>
+      <p class="desc">${escapeHtml(d.description)}</p>
+      <button class="expandbtn" data-expanddrill="${d.id}">${isExpanded ? 'Hide how-to' : 'How to do this drill'}</button>
+      ${isExpanded ? `
+        ${d.diagram ? renderDiagram(d.diagram) : ''}
+        ${d.soloInstructions ? `
+          <div class="instrblock">
+            <h4>🏠 How to do it</h4>
+            <ol>${d.soloInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+          </div>
+        ` : ''}
+      ` : ''}
+      <div class="completerow">
+        <button class="completebtn" data-completedrill="${d.id}" data-assignid="${d.id}">✓ Mark Done</button>
+        <span class="completecount">${count > 0 ? `${count} ${count === 1 ? 'family has' : 'families have'} done this` : 'Be the first!'}</span>
+      </div>
+    </div>
+  `;
+}
+
+function wireTeamPageEvents(){
+  document.querySelectorAll('[data-expanddrill]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.expanddrill;
+      if (expandedDrillIds.has(id)) expandedDrillIds.delete(id);
+      else expandedDrillIds.add(id);
+      renderTeamPage();
+    };
+  });
+
+  document.querySelectorAll('[data-completedrill]').forEach(btn => {
+    btn.onclick = async () => {
+      const drillId = btn.dataset.completedrill;
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+      await addDoc(collection(db, 'completions'), {
+        teamId: currentTeam.id,
+        drillId,
+        completedAt: new Date().toISOString()
+      });
+      await loadCompletions(currentTeam.id);
+      renderTeamPage();
+      showToast('Nice work! 🎉');
+    };
+  });
+}
+
+// Entry point: check for ?code= in the URL first
+const params = new URLSearchParams(window.location.search);
+const urlCode = params.get('code');
+
+if (urlCode) {
+  (async () => {
+    const team = await lookupTeam(urlCode);
+    if (!team) { renderEntry("That link's code wasn't found — try entering it manually below."); return; }
+    currentTeam = team;
+    await loadAllDrills();
+    await loadAssignments(team.id);
+    await loadCompletions(team.id);
+    renderTeamPage();
+  })();
+} else {
+  renderEntry();
+}
+</script>
+</body>
+</html>
