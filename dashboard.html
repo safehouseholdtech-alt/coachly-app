@@ -166,6 +166,36 @@
 
   .loading{ text-align:center; padding: 80px 0; color: var(--ink-soft); font-weight:600; }
 
+
+  .teamcard{
+    background: var(--white); border-radius:16px; padding:16px; margin-bottom:14px; box-shadow: 0 5px 0 rgba(0,0,0,0.07);
+  }
+  .teamcard h3{ margin:0 0 2px; font-size:16px; }
+  .teamcard .teammeta{ font-size:12px; color: var(--ink-soft); font-weight:600; margin:0 0 10px; }
+  .joincode{
+    display:flex; align-items:center; gap:10px; background: var(--cream); border-radius:12px;
+    padding:10px 14px; margin-bottom:12px;
+  }
+  .joincode .code{ font-family:'Anton',sans-serif; font-size:22px; letter-spacing:.08em; color: var(--grass-deep); }
+  .joincode .codelabel{ font-size:10px; text-transform:uppercase; font-weight:800; color: var(--ink-soft); }
+  .copybtn{
+    margin-left:auto; border:none; background: var(--sun); color: var(--ink); font-weight:800;
+    font-size:11.5px; padding:7px 12px; border-radius:9px; cursor:pointer;
+  }
+  .assignlist{ list-style:none; padding:0; margin:0 0 10px; }
+  .assignlist li{
+    background: var(--cream); border-radius:10px; padding:8px 12px; margin-bottom:6px;
+    display:flex; justify-content:space-between; align-items:center; font-size:12.5px; font-weight:700;
+  }
+  .assignlist button{ border:none; background:none; color: var(--coral); font-weight:800; cursor:pointer; font-size:15px; }
+  .teamactions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .assignform{ background: var(--cream); border-radius:12px; padding:12px; margin-top:10px; }
+  .assignform select, .assignform input{
+    width:100%; padding:10px; border-radius:9px; border:2px solid var(--line); font-size:13.5px; margin-bottom:10px;
+  }
+  .radiorow{ display:flex; gap:14px; margin-bottom:10px; font-size:12.5px; font-weight:700; }
+  .radiorow label{ display:flex; align-items:center; gap:5px; }
+
   .toast{
     position:fixed; top:16px; left:50%; transform:translateX(-50%);
     background: var(--sun); color: var(--ink); font-weight:800; font-size:13px;
@@ -528,6 +558,8 @@ const STAGE_DRILLS = [
 let currentUser = null;
 let allDrills = [];
 let myPlans = [];
+let myTeams = [];
+let myAssignments = [];
 let currentPlanDrillIds = [];
 let expandedDrillIds = new Set();
 let activeTab = 'library';
@@ -568,6 +600,25 @@ async function loadMyPlans(){
   myPlans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+function generateJoinCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no confusing chars like 0/O, 1/I
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+async function loadMyTeams(){
+  const q = query(collection(db, 'teams'), where('coachId', '==', currentUser.uid));
+  const snap = await getDocs(q);
+  myTeams = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadMyAssignments(){
+  const q = query(collection(db, 'assignments'), where('coachId', '==', currentUser.uid));
+  const snap = await getDocs(q);
+  myAssignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
 function render(){
   app.innerHTML = `
     <div class="topbar">
@@ -582,6 +633,7 @@ function render(){
         <button class="tabbtn ${activeTab==='library'?'active':''}" data-tab="library">Drill Library</button>
         <button class="tabbtn ${activeTab==='builder'?'active':''}" data-tab="builder">Build a Plan ${currentPlanDrillIds.length ? `(${currentPlanDrillIds.length})` : ''}</button>
         <button class="tabbtn ${activeTab==='plans'?'active':''}" data-tab="plans">My Plans</button>
+        <button class="tabbtn ${activeTab==='teams'?'active':''}" data-tab="teams">My Teams ${myTeams.length ? `(${myTeams.length})` : ''}</button>
       </div>
       <div id="tabContent"></div>
     </div>
@@ -598,6 +650,7 @@ function renderTab(){
   if (activeTab === 'library') el.innerHTML = libraryHtml();
   if (activeTab === 'builder') el.innerHTML = builderHtml();
   if (activeTab === 'plans') el.innerHTML = plansHtml();
+  if (activeTab === 'teams') el.innerHTML = teamsHtml();
   wireTabEvents();
 }
 
@@ -709,7 +762,7 @@ function builderHtml(){
 function plansHtml(){
   return `
     <h2>My Practice Plans</h2>
-    <p class="sectionsub">Plans you've saved. Assignment to teams is coming next.</p>
+    <p class="sectionsub">Plans you've saved. Assign one to a team from the "My Teams" tab.</p>
     ${myPlans.length === 0 ? `<p class="empty">No saved plans yet — build one in the "Build a Plan" tab.</p>` : myPlans.map(p => `
       <div class="planscard">
         <div class="info">
@@ -719,6 +772,81 @@ function plansHtml(){
         <button class="delbtn" data-delplan="${p.id}">Delete</button>
       </div>
     `).join('')}
+  `;
+}
+
+function teamsHtml(){
+  return `
+    <h2>My Teams</h2>
+    <p class="sectionsub">Create a team to get a join code, then assign a saved practice plan as homework.</p>
+
+    <div class="builder">
+      <div class="field">
+        <label>Team name</label>
+        <input type="text" id="newTeamName" placeholder="e.g. Galacticos U8">
+      </div>
+      <div class="field">
+        <label>Age group</label>
+        <select id="newTeamAge">${AGE_GROUPS.map(a=>`<option value="${a}">${a}</option>`).join('')}</select>
+      </div>
+      <button class="savebtn" id="createTeamBtn">Create Team</button>
+    </div>
+
+    ${myTeams.length === 0 ? `<p class="empty">No teams yet — create one above to get a join code.</p>` : myTeams.map(teamCardHtml).join('')}
+  `;
+}
+
+function teamCardHtml(t){
+  const assignments = myAssignments.filter(a => a.teamId === t.id);
+  return `
+    <div class="teamcard">
+      <h3>${escapeHtml(t.name)}</h3>
+      <p class="teammeta">${t.ageGroup}</p>
+      <div class="joincode">
+        <div>
+          <div class="codelabel">Join Code</div>
+          <div class="code">${t.joinCode}</div>
+        </div>
+        <button class="copybtn" data-copycode="${t.joinCode}">Copy</button>
+      </div>
+
+      ${assignments.length > 0 ? `
+        <ul class="assignlist">
+          ${assignments.map(a => `
+            <li>
+              <span>${escapeHtml(a.title)} · ${(a.drillIds || []).length} drills ${a.ongoing ? '(ongoing)' : a.dueDate ? `(due ${escapeHtml(a.dueDate)})` : ''}</span>
+              <button data-delassign="${a.id}">✕</button>
+            </li>
+          `).join('')}
+        </ul>
+      ` : `<p class="empty" style="margin-bottom:10px;">No homework assigned yet.</p>`}
+
+      <div class="teamactions">
+        <button class="toggleform" data-toggleassign="${t.id}">+ Assign homework</button>
+        <button class="toggleform" style="color:var(--coral);" data-delteam="${t.id}">Delete team</button>
+      </div>
+      <div id="assignFormWrap-${t.id}"></div>
+    </div>
+  `;
+}
+
+function assignFormHtml(teamId){
+  if (myPlans.length === 0) {
+    return `<div class="assignform"><p class="empty">You need a saved practice plan first — build one in the "Build a Plan" tab.</p></div>`;
+  }
+  return `
+    <div class="assignform">
+      <label style="font-size:11px;text-transform:uppercase;font-weight:700;color:var(--ink-soft);">Choose a plan</label>
+      <select id="assignPlanSelect-${teamId}">
+        ${myPlans.map(p => `<option value="${p.id}">${escapeHtml(p.title)} (${(p.drillIds||[]).length} drills)</option>`).join('')}
+      </select>
+      <div class="radiorow">
+        <label><input type="radio" name="dueType-${teamId}" value="ongoing" checked> Ongoing / off-season</label>
+        <label><input type="radio" name="dueType-${teamId}" value="date"> Due by date</label>
+      </div>
+      <input type="date" id="assignDueDate-${teamId}" style="display:none;">
+      <button class="savebtn" data-confirmassign="${teamId}">Assign to Team</button>
+    </div>
   `;
 }
 
@@ -790,6 +918,65 @@ function wireTabEvents(){
     btn.onclick = async () => {
       await deleteDoc(doc(db, 'practicePlans', btn.dataset.delplan));
       await loadMyPlans();
+      renderTab();
+    };
+  });
+
+  const createTeamBtn = document.getElementById('createTeamBtn');
+  if (createTeamBtn) createTeamBtn.onclick = async () => {
+    const name = document.getElementById('newTeamName').value.trim();
+    if (!name){ showToast('Give the team a name'); return; }
+    const ageGroup = document.getElementById('newTeamAge').value;
+    createTeamBtn.disabled = true;
+    createTeamBtn.textContent = 'Creating…';
+    await addDoc(collection(db, 'teams'), {
+      coachId: currentUser.uid,
+      name,
+      ageGroup,
+      joinCode: generateJoinCode(),
+      createdAt: serverTimestamp()
+    });
+    await loadMyTeams();
+    renderTab();
+    updateTeamsBadge();
+    showToast('Team created!');
+  };
+
+  document.querySelectorAll('[data-copycode]').forEach(btn => {
+    btn.onclick = () => {
+      const code = btn.dataset.copycode;
+      navigator.clipboard.writeText(code).then(() => showToast('Join code copied!'))
+        .catch(() => showToast(`Join code: ${code}`));
+    };
+  });
+
+  document.querySelectorAll('[data-delteam]').forEach(btn => {
+    btn.onclick = async () => {
+      if (!confirm('Delete this team? Any assigned homework for it will also be removed.')) return;
+      const teamId = btn.dataset.delteam;
+      const teamAssignments = myAssignments.filter(a => a.teamId === teamId);
+      for (const a of teamAssignments) await deleteDoc(doc(db, 'assignments', a.id));
+      await deleteDoc(doc(db, 'teams', teamId));
+      await loadMyTeams();
+      await loadMyAssignments();
+      renderTab();
+      updateTeamsBadge();
+    };
+  });
+
+  document.querySelectorAll('[data-toggleassign]').forEach(btn => {
+    btn.onclick = () => {
+      const teamId = btn.dataset.toggleassign;
+      const wrap = document.getElementById(`assignFormWrap-${teamId}`);
+      wrap.innerHTML = wrap.innerHTML ? '' : assignFormHtml(teamId);
+      if (wrap.innerHTML) wireAssignForm(teamId);
+    };
+  });
+
+  document.querySelectorAll('[data-delassign]').forEach(btn => {
+    btn.onclick = async () => {
+      await deleteDoc(doc(db, 'assignments', btn.dataset.delassign));
+      await loadMyAssignments();
       renderTab();
     };
   });
@@ -867,6 +1054,47 @@ function wireAddForm(){
   };
 }
 
+function wireAssignForm(teamId){
+  const radios = document.querySelectorAll(`input[name="dueType-${teamId}"]`);
+  const dateInput = document.getElementById(`assignDueDate-${teamId}`);
+  radios.forEach(r => {
+    r.onchange = () => {
+      dateInput.style.display = (r.value === 'date' && r.checked) ? 'block' : dateInput.style.display;
+      if (r.checked) dateInput.style.display = r.value === 'date' ? 'block' : 'none';
+    };
+  });
+
+  const confirmBtn = document.querySelector(`[data-confirmassign="${teamId}"]`);
+  if (confirmBtn) confirmBtn.onclick = async () => {
+    const planSelect = document.getElementById(`assignPlanSelect-${teamId}`);
+    const planId = planSelect.value;
+    const plan = myPlans.find(p => p.id === planId);
+    if (!plan) return;
+    const dueType = document.querySelector(`input[name="dueType-${teamId}"]:checked`).value;
+    const dueDate = dueType === 'date' ? dateInput.value : null;
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Assigning…';
+    await addDoc(collection(db, 'assignments'), {
+      coachId: currentUser.uid,
+      teamId,
+      title: plan.title,
+      drillIds: plan.drillIds || [],
+      ongoing: dueType === 'ongoing',
+      dueDate,
+      createdAt: serverTimestamp()
+    });
+    await loadMyAssignments();
+    renderTab();
+    showToast('Homework assigned!');
+  };
+}
+
+function updateTeamsBadge(){
+  const b = document.querySelector('.tabbtn[data-tab="teams"]');
+  if (b) b.textContent = `My Teams ${myTeams.length ? `(${myTeams.length})` : ''}`;
+}
+
 function updateTabsBadge(){
   const b = document.querySelector('.tabbtn[data-tab="builder"]');
   if (b) b.textContent = `Build a Plan ${currentPlanDrillIds.length ? `(${currentPlanDrillIds.length})` : ''}`;
@@ -934,6 +1162,8 @@ onAuthStateChanged(auth, async (user) => {
   const seeded = await seedStageDrillsIfNeeded(allDrills);
   if (seeded) await loadDrills();
   await loadMyPlans();
+  await loadMyTeams();
+  await loadMyAssignments();
   render();
 });
 </script>
