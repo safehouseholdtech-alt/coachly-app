@@ -807,7 +807,7 @@ function teamCardHtml(t){
           <div class="codelabel">Join Code</div>
           <div class="code">${t.joinCode}</div>
         </div>
-        <button class="copybtn" data-copycode="${t.joinCode}">Copy</button>
+        <button class="copybtn" data-copylink="${t.joinCode}">Copy Link</button>
       </div>
 
       ${assignments.length > 0 ? `
@@ -942,11 +942,12 @@ function wireTabEvents(){
     showToast('Team created!');
   };
 
-  document.querySelectorAll('[data-copycode]').forEach(btn => {
+  document.querySelectorAll('[data-copylink]').forEach(btn => {
     btn.onclick = () => {
-      const code = btn.dataset.copycode;
-      navigator.clipboard.writeText(code).then(() => showToast('Join code copied!'))
-        .catch(() => showToast(`Join code: ${code}`));
+      const code = btn.dataset.copylink;
+      const link = `${window.location.origin}${window.location.pathname.replace('dashboard.html','')}team.html?code=${code}`;
+      navigator.clipboard.writeText(link).then(() => showToast('Team link copied!'))
+        .catch(() => showToast(`Link: ${link}`));
     };
   });
 
