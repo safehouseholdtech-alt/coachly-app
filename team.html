@@ -96,6 +96,12 @@
     padding:10px 18px; border-radius:12px; z-index:30; box-shadow:0 8px 20px rgba(0,0,0,0.2);
   }
 </style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PitchPlan">
+<meta name="theme-color" content="#1f5f43">
 </head>
 <body>
 
@@ -369,6 +375,14 @@ if (urlCode) {
   })();
 } else {
   renderEntry();
+}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
 }
 </script>
 </body>
