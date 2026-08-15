@@ -233,6 +233,36 @@
     width:100%; border:none; border-radius:12px; padding:13px; font-weight:800; font-size:14px; cursor:pointer;
     background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400;
   }
+
+  /* ---- Dark mode: overriding the core surface variables cascades through nearly every component ---- */
+  body.dark-mode{
+    --white: #1B2B22;
+    --cream: #131F19;
+    --ink: #F3F7F1;
+    --ink-soft: rgba(243,247,241,0.68);
+    --line: rgba(243,247,241,0.14);
+  }
+  body.dark-mode{ background: #0D1712; }
+  body.dark-mode .topbar{ box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+  body.dark-mode .drillcard,
+  body.dark-mode .builder,
+  body.dark-mode .planscard,
+  body.dark-mode .teamcard,
+  body.dark-mode .stat,
+  body.dark-mode .addform,
+  body.dark-mode .entrycard{ box-shadow: 0 5px 0 rgba(0,0,0,0.35); }
+  body.dark-mode .signout,
+  body.dark-mode .toggleform{ background: var(--cream); }
+  body.dark-mode .field input,
+  body.dark-mode .builder input,
+  body.dark-mode .assignform select,
+  body.dark-mode .assignform input{ background: var(--cream); color: var(--ink); }
+  body.dark-mode .tag:not(.age):not(.stage){ background: rgba(255,255,255,0.08); }
+
+  .themetoggle{
+    border:none; background: var(--cream); color: var(--ink); font-weight:700; font-size:16px;
+    width:34px; height:34px; border-radius:50%; cursor:pointer; margin-left:10px; flex-shrink:0;
+  }
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -242,6 +272,13 @@
 <meta name="theme-color" content="#1f5f43">
 </head>
 <body>
+
+<script>
+  // Apply saved theme immediately, before render, to avoid a flash of the wrong theme
+  if (localStorage.getItem('pitchplan-theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
 
 <div id="app">
   <div class="loading">Loading…</div>
@@ -590,6 +627,160 @@ const STAGE_DRILLS = [
       "Rest 1 minute, walking, then repeat the sequence 3-4 times.",
       "This builds the habit of sprinting to regain the ball immediately after any loose touch."
     ]
+  },
+
+  // ---------------- Additional drills — filling category gaps, especially defending ----------------
+  {
+    name: "Toe-Tap Race", ageGroup: "U5-U6", category: "Coordination",
+    duration: 8, equipment: "1 ball per player, cones for a finish line",
+    diagram: "solo",
+    focus: "Turning basic ball-mastery reps into a fun race builds the habit without it feeling like practice.",
+    description: "Players race each other doing toe taps in place for a set count, then sprint to a finish line.",
+    coachInstructions: [
+      "Line players up with a ball each, finish line marked 10 yards away.",
+      "On 'go,' everyone does toe taps as fast as they can count to 10.",
+      "First to finish 10 taps sprints (without the ball) to the finish line.",
+      "Play multiple rounds so everyone gets to 'win' at least once.",
+      "Keep the mood light — cheer everyone's attempt, not just the fastest."
+    ],
+    soloInstructions: [
+      "Count how many toe taps you can do in 15 seconds.",
+      "Rest, then try to beat your own count on the next try.",
+      "Do 4-5 rounds — this is a great one to do daily."
+    ]
+  },
+  {
+    name: "Shadow Defender Game", ageGroup: "U5-U6", category: "Defending",
+    duration: 8, equipment: "Cones, no ball needed",
+    diagram: "channel",
+    focus: "A no-pressure, playful first exposure to the idea of getting your body between the ball and the goal.",
+    description: "Players practice staying between a partner and a target cone, moving side to side as their partner walks around — no tackling, just positioning.",
+    coachInstructions: [
+      "Pair players up. Place a cone 'target' behind one player.",
+      "The other player walks side to side; the defender must always stay between them and the cone.",
+      "No ball, no tackling — this is purely about learning to move your feet and stay goal-side.",
+      "Switch roles after 1 minute.",
+      "Keep it playful — call it 'shadow tag' if that helps the kids engage."
+    ],
+    soloInstructions: [
+      "Place a cone behind you as your 'goal.'",
+      "Have a parent walk side to side in front of you while you shuffle to stay between them and the cone.",
+      "Try it for 1 minute, then switch and you be the one moving."
+    ]
+  },
+  {
+    name: "Two-Touch Passing Gates", ageGroup: "U7-U8", category: "Passing",
+    duration: 12, equipment: "Cones, balls",
+    diagram: "openarea",
+    focus: "Adding a touch limit to an already-familiar game raises the challenge without changing the setup.",
+    description: "Partners pass through small cone gates around the area, now limited to two touches per pass — control, then pass.",
+    coachInstructions: [
+      "Use the same gate setup as Gate Passing, if players already know it.",
+      "This time, require exactly two touches: one to control, one to pass.",
+      "Count how many gates a pair can pass through in 2 minutes.",
+      "If two touches is too hard at first, allow three and work down.",
+      "Celebrate clean two-touch passes out loud when you see them."
+    ],
+    soloInstructions: [
+      "Pass against a wall, controlling the return with one touch and passing again with the second.",
+      "Count how many clean two-touch passes in a row you can string together.",
+      "Try to beat your record across 5 attempts."
+    ]
+  },
+  {
+    name: "Pac-Man Defending", ageGroup: "U7-U8", category: "Defending",
+    duration: 12, equipment: "Cones, bibs, balls",
+    diagram: "openarea",
+    focus: "A tag-based game teaches delaying and jockeying without any of the pressure of real 1v1 tackling.",
+    description: "One 'ghost' defender tries to tag dribbling players, who must dribble away using changes of direction — introducing the idea of jockeying under simple pressure.",
+    coachInstructions: [
+      "Mark a medium-sized grid. One player is the 'ghost' (defender), everyone else dribbles a ball.",
+      "The ghost tries to tag dribblers — tagged players freeze for 5 seconds, then rejoin.",
+      "Rotate the ghost every 90 seconds so everyone gets a turn.",
+      "Coach the ghost on angles: 'cut off their space, don't just chase the ball.'",
+      "Coach dribblers on quick changes of direction to escape."
+    ],
+    soloInstructions: [
+      "Dribble around your yard, imagining a defender chasing you.",
+      "Practice sudden changes of direction — stop, turn, and go the other way.",
+      "Do this for 2-3 minutes, mixing in your fastest changes of direction."
+    ]
+  },
+  {
+    name: "1v1 Defending Channel", ageGroup: "U9-U10", category: "Defending",
+    duration: 15, equipment: "Cones, balls",
+    diagram: "channel",
+    focus: "This is the age to introduce real jockeying technique — patient defending rather than diving in for tackles.",
+    description: "One defender faces one attacker in a narrow channel, practicing patient jockeying to show the attacker toward one side rather than committing to a tackle.",
+    coachInstructions: [
+      "Mark a narrow channel, about 5 yards wide and 15 yards long, with a small goal or end-line at each end.",
+      "Defender starts jockeying — low stance, small steps, not diving in.",
+      "Coach the key point: 'show the attacker one side, don't guess and lunge.'",
+      "Attacker tries to dribble past; defender's job is to delay and show them wide, not necessarily win the ball every time.",
+      "Rotate attacker and defender every few reps."
+    ],
+    soloInstructions: [
+      "Practice a low defensive stance in a mirror or for a parent: knees bent, small quick steps side to side.",
+      "Have a parent dribble slowly toward you in a narrow space while you practice staying balanced and jockeying rather than lunging.",
+      "Focus on footwork, not on winning the ball every time."
+    ]
+  },
+  {
+    name: "Long Pass Target Practice", ageGroup: "U9-U10", category: "Passing",
+    duration: 12, equipment: "Cones or targets, balls",
+    diagram: "coneline",
+    focus: "Longer, driven passing technique benefits from the same high-repetition approach as short passing at this age.",
+    description: "Players practice striking longer passes at a target cone or small goal from increasing distances, focusing on clean technique.",
+    coachInstructions: [
+      "Set up a target (cone, small goal, or marked spot) and have players strike passes toward it from 10 yards.",
+      "Demonstrate the technique: plant foot beside the ball, strike through the middle with the inside or laces depending on distance.",
+      "After a few clean reps, move players back to 15, then 20 yards.",
+      "Prioritize accuracy and clean contact over raw power.",
+      "Keep a light competitive element — closest to the target wins the round."
+    ],
+    soloInstructions: [
+      "Set up a target against a fence or wall, or use a cone in an open space.",
+      "Practice striking 10 passes at the target from a comfortable distance, focusing on a clean strike.",
+      "Once consistent, take a few steps back and repeat."
+    ]
+  },
+  {
+    name: "Recovery Run Defending", ageGroup: "U11+", category: "Defending",
+    duration: 15, equipment: "Cones, bibs, balls, 4+ players",
+    diagram: "smallfield",
+    focus: "Ties directly into this stage's counter-press theme — the moment right after losing the ball is where recovery habits get built.",
+    description: "After a player loses possession in a small game, they must immediately sprint to recover and pressure the ball rather than jogging back.",
+    coachInstructions: [
+      "Play a small-sided game (3v3 or 4v4).",
+      "Whenever a player loses the ball, call out their name and require an immediate sprint recovery to apply pressure.",
+      "Reward players who recover quickly with vocal praise — this is a habit, not a punishment drill.",
+      "Rotate in short bursts so the intensity stays high without players tiring out completely.",
+      "Debrief: ask players how it felt to recover immediately versus jogging back."
+    ],
+    soloInstructions: [
+      "Dribble, then deliberately let the ball roll away from you a few steps.",
+      "Sprint to regain control immediately, as if a defender were closing in.",
+      "Repeat 8-10 times — this builds the instinct to react fast, not just physically but mentally."
+    ]
+  },
+  {
+    name: "Combination Play: Give-and-Go", ageGroup: "U11+", category: "Passing",
+    duration: 15, equipment: "Cones, balls, 4+ players",
+    diagram: "zones",
+    focus: "Two-player combination play is a natural next step once individual technique and basic possession are solid.",
+    description: "Two players practice the classic give-and-go: pass to a teammate, sprint past a defender, and receive the return pass in space.",
+    coachInstructions: [
+      "Set up a simple lane with a passive defender in the middle.",
+      "Player A passes to Player B, then immediately sprints past the defender.",
+      "Player B returns the pass into the space Player A has sprinted into.",
+      "Start with a fully passive defender, then progress to light pressure once the timing clicks.",
+      "Coach the timing: 'pass and go — don't watch your pass, run right after it.'"
+    ],
+    soloInstructions: [
+      "Use a wall as your 'teammate' — pass into the wall, then sprint past an imaginary defender to meet the rebound.",
+      "Focus on timing: the sprint should start the moment the ball leaves your foot.",
+      "Repeat 10 times, varying the angle of your run."
+    ]
   }
 ];
 
@@ -698,6 +889,7 @@ function render(){
       <div style="display:flex;align-items:center;">
         <span class="who">${currentUser.email}</span>
         <button class="signout" id="signoutBtn">Sign out</button>
+        <button class="themetoggle" id="themeToggleBtn" title="Toggle dark mode">${document.body.classList.contains('dark-mode') ? '☀️' : '🌙'}</button>
       </div>
     </div>
     <div class="wrap">
@@ -711,6 +903,11 @@ function render(){
     </div>
   `;
   document.getElementById('signoutBtn').onclick = () => signOut(auth);
+  document.getElementById('themeToggleBtn').onclick = () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('pitchplan-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    render();
+  };
   document.querySelectorAll('.tabbtn').forEach(b => {
     b.onclick = () => { activeTab = b.dataset.tab; render(); };
   });
@@ -1267,6 +1464,10 @@ function renderDiagram(type){
   } else if (type === 'openarea'){
     [[80,50],[150,40],[220,60],[110,100],[190,110]].forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
     shapes += label(150,135,'Free dribbling — freeze on the whistle');
+  } else if (type === 'channel'){
+    shapes += `<rect x="60" y="35" width="180" height="80" fill="none" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += player(90,75,'#FF6B5E') + player(210,75,'#48C6EF');
+    shapes += label(150,20,'1v1 in a narrow channel');
   }
   return `<div class="diagram-wrap"><svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">${pitch}${shapes}</svg></div>`;
 }
