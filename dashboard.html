@@ -234,6 +234,12 @@
     background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400;
   }
 </style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PitchPlan">
+<meta name="theme-color" content="#1f5f43">
 </head>
 <body>
 
@@ -1288,6 +1294,14 @@ onAuthStateChanged(auth, async (user) => {
     showOnboarding();
   }
 });
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
