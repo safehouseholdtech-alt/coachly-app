@@ -69,6 +69,12 @@
   .loading{ text-align:center; color: var(--white); font-weight:700; }
   .hidden{ display:none; }
 </style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PitchPlan">
+<meta name="theme-color" content="#1f5f43">
 </head>
 <body>
 
@@ -163,6 +169,14 @@ function friendlyError(code){
     case 'auth/user-not-found': return 'No account with that email — try signing up.';
     default: return 'Something went wrong — try again.';
   }
+}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
 }
 </script>
 </body>
