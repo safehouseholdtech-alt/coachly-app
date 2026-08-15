@@ -121,6 +121,18 @@ const STAGE_INFO = {
   'U11+': { key: 'breakthrough', name: 'Breakthrough' }
 };
 
+const CATEGORY_PHASE = {
+  'Coordination': 'Warm-Up',
+  'Fun Game': 'Warm-Up',
+  'Dribbling': 'Main Practice',
+  'Passing': 'Main Practice',
+  'Shooting': 'Main Practice',
+  'Defending': 'Main Practice',
+  'Possession': 'Game Phase'
+};
+const PHASE_ORDER = ['Warm-Up', 'Main Practice', 'Game Phase'];
+function getPhase(category){ return CATEGORY_PHASE[category] || 'Main Practice'; }
+
 const app = document.getElementById('app');
 let currentTeam = null;
 let currentAssignments = [];
@@ -300,11 +312,21 @@ function renderTeamPage(){
 
 function assignGroupHtml(a){
   const drills = (a.drillIds || []).map(id => allDrills.find(d => d.id === id)).filter(Boolean);
+  const grouped = { 'Warm-Up': [], 'Main Practice': [], 'Game Phase': [] };
+  drills.forEach(d => grouped[getPhase(d.category)].push(d));
+  const hasPhases = drills.length > 0 && PHASE_ORDER.filter(p => grouped[p].length > 0).length > 1;
+
   return `
     <div class="assigngroup">
       <h2>${escapeHtml(a.title)}</h2>
       <span class="duetag">${a.ongoing ? '🔁 Ongoing' : a.dueDate ? `📅 Due ${escapeHtml(a.dueDate)}` : 'Assigned'}</span>
-      ${drills.map(drillHtml).join('')}
+      ${hasPhases
+        ? PHASE_ORDER.map(phase => grouped[phase].length === 0 ? '' : `
+            <p style="font-size:11px;text-transform:uppercase;font-weight:800;color:var(--grass-deep);letter-spacing:.05em;margin:12px 0 6px;">${phase}</p>
+            ${grouped[phase].map(drillHtml).join('')}
+          `).join('')
+        : drills.map(drillHtml).join('')
+      }
     </div>
   `;
 }
@@ -325,6 +347,15 @@ function drillHtml(d){
           <div class="instrblock">
             <h4>🏠 How to do it</h4>
             <ol>${d.soloInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
+          </div>
+        ` : ''}
+        ${d.progressions ? `
+          <div class="instrblock">
+            <h4>🎚️ Make it easier or harder</h4>
+            <ol>
+              <li><strong>Going great?</strong> ${escapeHtml(d.progressions.harder)}</li>
+              <li><strong>Too tricky?</strong> ${escapeHtml(d.progressions.easier)}</li>
+            </ol>
           </div>
         ` : ''}
       ` : ''}
