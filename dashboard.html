@@ -201,6 +201,38 @@
     background: var(--sun); color: var(--ink); font-weight:800; font-size:13px;
     padding:10px 18px; border-radius:12px; z-index:30; box-shadow:0 8px 20px rgba(0,0,0,0.2);
   }
+
+  .overlay{
+    position:fixed; inset:0; background: rgba(22,40,30,0.6); backdrop-filter: blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:40; padding:20px;
+  }
+  .onboardcard{
+    background: var(--white); border-radius:22px; padding:28px 24px; max-width:380px; width:100%;
+    text-align:center; box-shadow: 0 12px 0 rgba(0,0,0,0.15);
+  }
+  .onboardcard .obkicker{ font-size:32px; margin-bottom:8px; }
+  .onboardcard h2{ font-family:'Anton',sans-serif; font-size:24px; text-transform:uppercase; margin:0 0 8px; }
+  .onboardcard p{ color: var(--ink-soft); font-size:13.5px; font-weight:600; margin:0 0 20px; line-height:1.5; }
+  .obbtns{ display:flex; flex-direction:column; gap:10px; }
+  .obbtn{
+    border:none; border-radius:13px; padding:14px; font-weight:800; font-size:14px; cursor:pointer;
+  }
+  .obbtn.primary{ background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400; }
+  .obbtn.secondary{ background: var(--cream); color: var(--ink); box-shadow: 0 4px 0 var(--line); }
+
+  .buildforme{
+    background: linear-gradient(135deg, var(--grape), var(--sky));
+    border-radius:18px; padding:18px; margin-bottom:18px; text-align:center; color: var(--white);
+  }
+  .buildforme h3{ font-family:'Anton',sans-serif; font-size:18px; text-transform:uppercase; margin:0 0 4px; }
+  .buildforme p{ font-size:12.5px; font-weight:600; opacity:0.92; margin:0 0 12px; }
+  .buildforme select{
+    width:100%; padding:11px; border-radius:10px; border:none; font-weight:700; font-size:13.5px; margin-bottom:10px;
+  }
+  .buildforme button{
+    width:100%; border:none; border-radius:12px; padding:13px; font-weight:800; font-size:14px; cursor:pointer;
+    background: var(--sun); color: var(--ink); box-shadow: 0 4px 0 #E0A400;
+  }
 </style>
 </head>
 <body>
@@ -212,7 +244,7 @@
 <script type="module">
 import {
   auth, db, signOut, onAuthStateChanged,
-  doc, updateDoc, deleteDoc,
+  doc, getDoc, setDoc, updateDoc, deleteDoc,
   collection, addDoc, query, where, orderBy, getDocs, serverTimestamp
 } from './firebase-config.js';
 
@@ -556,11 +588,13 @@ const STAGE_DRILLS = [
 ];
 
 let currentUser = null;
+let coachProfile = null;
 let allDrills = [];
 let myPlans = [];
 let myTeams = [];
 let myAssignments = [];
 let currentPlanDrillIds = [];
+let prefillPlanTitle = '';
 let expandedDrillIds = new Set();
 let activeTab = 'library';
 let filterAge = '';
@@ -619,6 +653,38 @@ async function loadMyAssignments(){
   myAssignments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+function showOnboarding(){
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.id = 'onboardOverlay';
+  overlay.innerHTML = `
+    <div class="onboardcard">
+      <div class="obkicker">⚽</div>
+      <h2>Welcome, Coach!</h2>
+      <p>Quick question so we can set things up right for you.<br><br><strong>Have you coached soccer before?</strong></p>
+      <div class="obbtns">
+        <button class="obbtn secondary" id="obNo">No — this is my first time</button>
+        <button class="obbtn primary" id="obYes">Yes, I've coached before</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.getElementById('obNo').onclick = () => completeOnboarding(true);
+  document.getElementById('obYes').onclick = () => completeOnboarding(false);
+}
+
+async function completeOnboarding(noviceMode){
+  coachProfile = { ...coachProfile, hasOnboarded: true, noviceMode };
+  await setDoc(doc(db, 'coaches', currentUser.uid), {
+    hasOnboarded: true,
+    noviceMode,
+    email: currentUser.email
+  }, { merge: true });
+  document.getElementById('onboardOverlay').remove();
+  render();
+}
+
 function render(){
   app.innerHTML = `
     <div class="topbar">
@@ -654,6 +720,34 @@ function renderTab(){
   wireTabEvents();
 }
 
+function generatePracticeForMe(ageGroup){
+  const pool = allDrills.filter(d => d.ageGroup === ageGroup);
+  if (pool.length === 0) { showToast('No drills found for that age group yet'); return; }
+
+  const seenCategories = new Set();
+  const picks = [];
+  for (const d of pool) {
+    if (!seenCategories.has(d.category)) {
+      picks.push(d);
+      seenCategories.add(d.category);
+    }
+    if (picks.length >= 4) break;
+  }
+  // If we didn't reach 4 (not enough category variety), fill with remaining drills
+  for (const d of pool) {
+    if (picks.length >= 4) break;
+    if (!picks.includes(d)) picks.push(d);
+  }
+
+  currentPlanDrillIds = picks.map(d => d.id);
+  const stage = STAGE_INFO[ageGroup];
+  const today = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  prefillPlanTitle = `${stage ? stage.name : ageGroup} Practice — ${today}`;
+  activeTab = 'builder';
+  render();
+  showToast('Practice built! Review and save below.');
+}
+
 function libraryHtml(){
   const filtered = allDrills.filter(d =>
     (!filterAge || d.ageGroup === filterAge) &&
@@ -662,6 +756,16 @@ function libraryHtml(){
   return `
     <h2>Drill Library</h2>
     <p class="sectionsub">Four developmental stages, each grounded in what actually works best for that age. Tap a stage to filter, or a drill to see full instructions.</p>
+
+    <div class="buildforme">
+      <h3>🎯 Build My Practice For Me</h3>
+      <p>New to coaching, or just short on time? Pick an age group and we'll assemble a full practice for you.</p>
+      <select id="buildForMeAge">
+        ${AGE_GROUPS.map(a => `<option value="${a}">${STAGE_INFO[a].name} · ${a}</option>`).join('')}
+      </select>
+      <button id="buildForMeBtn">Build It For Me</button>
+    </div>
+
     <div class="stagelegend">
       <div class="stagepath"></div>
       ${AGE_GROUPS.map((age, i) => {
@@ -677,10 +781,12 @@ function libraryHtml(){
       }).join('')}
     </div>
     <div class="filters">
-      <select id="filterCategory">
-        <option value="">All skills</option>
-        ${CATEGORIES.map(c => `<option value="${c}" ${filterCategory===c?'selected':''}>${c}</option>`).join('')}
-      </select>
+      ${coachProfile && coachProfile.noviceMode ? '' : `
+        <select id="filterCategory">
+          <option value="">All skills</option>
+          ${CATEGORIES.map(c => `<option value="${c}" ${filterCategory===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      `}
       ${filterAge ? `<button class="tabbtn" id="clearAgeFilter">✕ Clear age filter</button>` : ''}
     </div>
     <div class="drillgrid">
@@ -741,7 +847,7 @@ function builderHtml(){
     <div class="builder">
       <div class="field">
         <label>Plan title</label>
-        <input type="text" id="planTitle" placeholder="e.g. Week 3 — Golden Age Focus">
+        <input type="text" id="planTitle" placeholder="e.g. Week 3 — Golden Age Focus" value="${escapeHtml(prefillPlanTitle)}">
       </div>
       ${selected.length === 0 ? `<p class="empty">No drills added yet — head to the Drill Library and tap "+ Add to Plan."</p>` : `
         <ul class="planlist">
@@ -862,6 +968,12 @@ function wireTabEvents(){
   const clearBtn = document.getElementById('clearAgeFilter');
   if (clearBtn) clearBtn.onclick = () => { filterAge = ''; renderTab(); };
 
+  const buildForMeBtn = document.getElementById('buildForMeBtn');
+  if (buildForMeBtn) buildForMeBtn.onclick = () => {
+    const age = document.getElementById('buildForMeAge').value;
+    generatePracticeForMe(age);
+  };
+
   const catSel = document.getElementById('filterCategory');
   if (catSel) catSel.onchange = (e) => { filterCategory = e.target.value; renderTab(); };
 
@@ -908,6 +1020,7 @@ function wireTabEvents(){
       createdAt: serverTimestamp()
     });
     currentPlanDrillIds = [];
+    prefillPlanTitle = '';
     await loadMyPlans();
     activeTab = 'plans';
     showToast('Practice plan saved!');
@@ -1159,6 +1272,10 @@ function escapeHtml(s){
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
+
+  const profileSnap = await getDoc(doc(db, 'coaches', user.uid));
+  coachProfile = profileSnap.exists() ? profileSnap.data() : null;
+
   await loadDrills();
   const seeded = await seedStageDrillsIfNeeded(allDrills);
   if (seeded) await loadDrills();
@@ -1166,6 +1283,10 @@ onAuthStateChanged(auth, async (user) => {
   await loadMyTeams();
   await loadMyAssignments();
   render();
+
+  if (!coachProfile || !coachProfile.hasOnboarded) {
+    showOnboarding();
+  }
 });
 </script>
 </body>
