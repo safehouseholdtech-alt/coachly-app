@@ -293,6 +293,17 @@ import {
 
 const AGE_GROUPS = ['U5-U6','U7-U8','U9-U10','U11+'];
 const CATEGORIES = ['Dribbling','Passing','Shooting','Defending','Fun Game','Possession','Coordination'];
+const CATEGORY_PHASE = {
+  'Coordination': 'Warm-Up',
+  'Fun Game': 'Warm-Up',
+  'Dribbling': 'Main Practice',
+  'Passing': 'Main Practice',
+  'Shooting': 'Main Practice',
+  'Defending': 'Main Practice',
+  'Possession': 'Game Phase'
+};
+const PHASE_ORDER = ['Warm-Up', 'Main Practice', 'Game Phase'];
+function getPhase(category){ return CATEGORY_PHASE[category] || 'Main Practice'; }
 
 // Each age group maps to one evidence-based developmental stage.
 const STAGE_INFO = {
@@ -322,6 +333,7 @@ const STAGE_DRILLS = [
     diagram: "solo",
     focus: "Hundreds of light, repeated touches build comfort with the ball long before tactics matter.",
     description: "A rotating circuit of simple ball-mastery moves done in place: toe taps, sole rolls, and inside-outside touches.",
+    progressions: { easier: "Fewer moves, slower pace.", harder: "Add a second move combo; try to do it without watching the ball." },
     coachInstructions: [
       "Give each player their own ball and enough space to work individually.",
       "Demonstrate each move slowly first: toe taps (top of foot), sole rolls (bottom of foot side to side), inside-outside taps.",
@@ -342,6 +354,7 @@ const STAGE_DRILLS = [
     diagram: "circle",
     focus: "A simple, playful introduction to protecting the ball and finding a free teammate.",
     description: "Three or four players form a small circle and keep the ball away from one player in the middle, using unlimited touches.",
+    progressions: { easier: "Bigger circle, more outside players.", harder: "Smaller circle, two defenders in the middle." },
     coachInstructions: [
       "Mark a circle about 5 yards across with cones.",
       "Put 4-5 players around the edge and 1 player in the middle.",
@@ -362,6 +375,7 @@ const STAGE_DRILLS = [
     diagram: "openarea",
     focus: "Builds the habit of looking up while dribbling, in its simplest, most playful form.",
     description: "Players dribble freely in a small area; on the coach's whistle, everyone freezes and answers a simple question about the game.",
+    progressions: { easier: "Freeze less often, easier questions.", harder: "Freeze more often; ask them to name a teammate, not just point." },
     coachInstructions: [
       "Mark a small area and give each player a ball to dribble freely inside it.",
       "Blow a whistle at random intervals — everyone freezes with a foot on the ball.",
@@ -380,6 +394,7 @@ const STAGE_DRILLS = [
     diagram: "ladder",
     focus: "General movement skill and balance at this age transfers directly into better ball control later.",
     description: "A mix of simple movement games (hopping, skipping, balancing) combined with light ball control, building general athleticism.",
+    progressions: { easier: "Skip the ball for the balance parts.", harder: "Add the ball to every station, including the balance hold." },
     coachInstructions: [
       "Set up a short line of cones or an agility ladder if you have one.",
       "Have players hop, skip, and side-step through the course without a ball first.",
@@ -401,6 +416,7 @@ const STAGE_DRILLS = [
     diagram: "square",
     focus: "Small-sided keep-away games force quick decisions far more often than a full-size game ever would.",
     description: "Four players form a square and keep the ball from two defenders in the middle, working toward two-touch passing.",
+    progressions: { easier: "Unlimited touches.", harder: "Two-touch limit and a smaller square." },
     coachInstructions: [
       "Set up a 6x6 yard square with a player on each corner.",
       "Two defenders start in the middle.",
@@ -420,6 +436,7 @@ const STAGE_DRILLS = [
     diagram: "coneline",
     focus: "Learning one clean move well, then testing it live, builds real 1v1 confidence.",
     description: "Players learn one signature 1v1 move (the step-over) against a cone, then try it against a passive defender.",
+    progressions: { easier: "Walking pace, cone only.", harder: "Full speed against a moving defender." },
     coachInstructions: [
       "Demonstrate the step-over slowly: fake to go one way with a circling foot motion, then push the ball the other way.",
       "Have players practice it against a single cone, walking pace, 8-10 reps each.",
@@ -439,6 +456,7 @@ const STAGE_DRILLS = [
     diagram: "smallfield",
     focus: "Smaller games mean far more touches and 1v1 chances per player than a big, physical game.",
     description: "A small 4v4 game on a tight field with small goals, encouraging players to dribble past opponents rather than just kick the ball away.",
+    progressions: { easier: "Bigger goals, more space.", harder: "Smaller goals, tighter grid." },
     coachInstructions: [
       "Mark a small field, roughly 20x15 yards, with a small goal (2 cones) on each end.",
       "Play 4v4 with no goalkeepers — goals only count from inside a marked shooting zone.",
@@ -458,6 +476,7 @@ const STAGE_DRILLS = [
     diagram: "smallfield",
     focus: "Turns the habit of winning the ball back quickly into a fun race instead of a rule.",
     description: "A small-sided game where the team that just lost the ball has 5 seconds to win it back before the drill resets in the other team's favor.",
+    progressions: { easier: "Extend to 8 seconds.", harder: "Cut to 3 seconds on a smaller grid." },
     coachInstructions: [
       "Set up a small-sided game (3v3 or 4v4) in a tight grid.",
       "When a team loses possession, start counting down loudly from 5.",
@@ -479,6 +498,7 @@ const STAGE_DRILLS = [
     diagram: "coneline",
     focus: "This is the best age to stack high technical reps with real decision-making, since both stick fastest here.",
     description: "Players dribble through a short course and must choose to pass or continue dribbling based on a coach's visual signal at the end.",
+    progressions: { easier: "Fewer cones, slower signal.", harder: "More cones, faster and randomized signals." },
     coachInstructions: [
       "Set up a short cone dribbling course ending near the coach.",
       "Hold up a colored bib or cone as players approach the end: one color means 'pass to a teammate,' another means 'shoot' or 'keep dribbling.'",
@@ -498,6 +518,7 @@ const STAGE_DRILLS = [
     diagram: "square",
     focus: "Introduces spatial awareness — learning to occupy useful space, not just chase the ball.",
     description: "A keep-away game where outside players must hold specific positions (like a mini 4-3-3 shape) rather than clustering around the ball.",
+    progressions: { easier: "Fewer positions to track, one defender.", harder: "Two defenders and a two-touch limit." },
     coachInstructions: [
       "Set up a larger grid (10x10 yards) with cones marking 5-6 outside positions.",
       "Assign each outside player a fixed position they must stay near — don't let them chase the ball.",
@@ -517,6 +538,7 @@ const STAGE_DRILLS = [
     diagram: "fanstations",
     focus: "High-repetition shooting technique pays off fastest during this peak skill-learning window.",
     description: "Players rotate through three shooting stations, repeating the same clean technique from different angles and distances.",
+    progressions: { easier: "Move stations closer to goal.", harder: "Move further out and add a passive defender." },
     coachInstructions: [
       "Set up three stations around the goal: straight-on, left angle, right angle.",
       "Demonstrate a simple, repeatable shooting technique: plant foot beside the ball, strike through the center with the laces.",
@@ -536,6 +558,7 @@ const STAGE_DRILLS = [
     diagram: "smallfield",
     focus: "Letting players solve a numbers-up problem themselves builds decision-making faster than direct instruction.",
     description: "A 3v3 game with one neutral player who always plays for whichever team has the ball, creating a constant numbers-up situation to exploit.",
+    progressions: { easier: "Two neutral players instead of one.", harder: "Remove the neutral player and add a touch limit." },
     coachInstructions: [
       "Set up a medium-sized grid with two small goals or end-zones.",
       "Play 3v3 with one neutral (bib-wearing) player who joins the attacking team whenever they have the ball.",
@@ -557,6 +580,7 @@ const STAGE_DRILLS = [
     diagram: "circle",
     focus: "A full-tempo possession game that rewards the sharper decision-making this age group is ready for.",
     description: "Eight outside players keep the ball from two pressing defenders inside a tight grid, with a two-touch limit.",
+    progressions: { easier: "Allow three touches.", harder: "One-touch only." },
     coachInstructions: [
       "Set up an 8-yard circle or octagon with 8 players on the outside and 2 defenders inside.",
       "Enforce a maximum two-touch limit to force quick decisions.",
@@ -576,6 +600,7 @@ const STAGE_DRILLS = [
     diagram: "zones",
     focus: "This age can now handle more structured tactical concepts layered on top of technique.",
     description: "Teams build possession from the back through defined zones before working the ball into a finishing opportunity.",
+    progressions: { easier: "Fewer required passes per zone.", harder: "Add a time limit for advancing out of each zone." },
     coachInstructions: [
       "Divide the field into three zones: build-up, midfield, and attacking third.",
       "Players must complete a set number of passes in each zone before advancing the ball forward.",
@@ -596,6 +621,7 @@ const STAGE_DRILLS = [
     diagram: "gauntlet",
     focus: "Technique built years earlier now gets tested against real, live defensive pressure.",
     description: "Players run a gauntlet of 1v1 defenders, each requiring a different skill move (step-over, scissor, cut-back) to get past.",
+    progressions: { easier: "Fewer defenders, walking pace.", harder: "Full speed, finish with a shot on goal." },
     coachInstructions: [
       "Line up 3-4 defenders in a row, each about 5 yards apart, in a narrow lane.",
       "Assign each defender a fixed role: light passive pressure only, not full tackling.",
@@ -615,6 +641,7 @@ const STAGE_DRILLS = [
     diagram: "smallfield",
     focus: "The growth-spurt window is when interval-style physical training starts producing real fitness gains.",
     description: "Interval-based small-sided games at high intensity, with players immediately pressing to win the ball back after any loss of possession.",
+    progressions: { easier: "Longer recovery, shorter bursts.", harder: "Shorter recovery, longer high-intensity bursts." },
     coachInstructions: [
       "Set up a small-sided game (4v4) in a tight grid to force quick transitions.",
       "Run in intervals: 3 minutes of high-intensity play, then 1 minute of walking recovery.",
@@ -636,6 +663,7 @@ const STAGE_DRILLS = [
     diagram: "solo",
     focus: "Turning basic ball-mastery reps into a fun race builds the habit without it feeling like practice.",
     description: "Players race each other doing toe taps in place for a set count, then sprint to a finish line.",
+    progressions: { easier: "Count to 5 instead of 10.", harder: "Count to 20, alternating a specific foot pattern." },
     coachInstructions: [
       "Line players up with a ball each, finish line marked 10 yards away.",
       "On 'go,' everyone does toe taps as fast as they can count to 10.",
@@ -655,6 +683,7 @@ const STAGE_DRILLS = [
     diagram: "channel",
     focus: "A no-pressure, playful first exposure to the idea of getting your body between the ball and the goal.",
     description: "Players practice staying between a partner and a target cone, moving side to side as their partner walks around — no tackling, just positioning.",
+    progressions: { easier: "Partner moves slowly and predictably.", harder: "Partner adds quick fakes and sudden changes of direction." },
     coachInstructions: [
       "Pair players up. Place a cone 'target' behind one player.",
       "The other player walks side to side; the defender must always stay between them and the cone.",
@@ -674,6 +703,7 @@ const STAGE_DRILLS = [
     diagram: "openarea",
     focus: "Adding a touch limit to an already-familiar game raises the challenge without changing the setup.",
     description: "Partners pass through small cone gates around the area, now limited to two touches per pass — control, then pass.",
+    progressions: { easier: "Allow three touches.", harder: "One touch wherever possible." },
     coachInstructions: [
       "Use the same gate setup as Gate Passing, if players already know it.",
       "This time, require exactly two touches: one to control, one to pass.",
@@ -693,6 +723,7 @@ const STAGE_DRILLS = [
     diagram: "openarea",
     focus: "A tag-based game teaches delaying and jockeying without any of the pressure of real 1v1 tackling.",
     description: "One 'ghost' defender tries to tag dribbling players, who must dribble away using changes of direction — introducing the idea of jockeying under simple pressure.",
+    progressions: { easier: "One ghost, bigger grid.", harder: "Two ghosts hunting independently on a smaller grid." },
     coachInstructions: [
       "Mark a medium-sized grid. One player is the 'ghost' (defender), everyone else dribbles a ball.",
       "The ghost tries to tag dribblers — tagged players freeze for 5 seconds, then rejoin.",
@@ -712,6 +743,7 @@ const STAGE_DRILLS = [
     diagram: "channel",
     focus: "This is the age to introduce real jockeying technique — patient defending rather than diving in for tackles.",
     description: "One defender faces one attacker in a narrow channel, practicing patient jockeying to show the attacker toward one side rather than committing to a tackle.",
+    progressions: { easier: "Widen the channel.", harder: "Narrow the channel and add a small goal to defend." },
     coachInstructions: [
       "Mark a narrow channel, about 5 yards wide and 15 yards long, with a small goal or end-line at each end.",
       "Defender starts jockeying — low stance, small steps, not diving in.",
@@ -731,6 +763,7 @@ const STAGE_DRILLS = [
     diagram: "coneline",
     focus: "Longer, driven passing technique benefits from the same high-repetition approach as short passing at this age.",
     description: "Players practice striking longer passes at a target cone or small goal from increasing distances, focusing on clean technique.",
+    progressions: { easier: "Closer target, bigger target.", harder: "Farther target, smaller target, add a defender's shadow." },
     coachInstructions: [
       "Set up a target (cone, small goal, or marked spot) and have players strike passes toward it from 10 yards.",
       "Demonstrate the technique: plant foot beside the ball, strike through the middle with the inside or laces depending on distance.",
@@ -750,6 +783,7 @@ const STAGE_DRILLS = [
     diagram: "smallfield",
     focus: "Ties directly into this stage's counter-press theme — the moment right after losing the ball is where recovery habits get built.",
     description: "After a player loses possession in a small game, they must immediately sprint to recover and pressure the ball rather than jogging back.",
+    progressions: { easier: "Bigger grid, more reaction time.", harder: "Smaller grid, immediate recovery required." },
     coachInstructions: [
       "Play a small-sided game (3v3 or 4v4).",
       "Whenever a player loses the ball, call out their name and require an immediate sprint recovery to apply pressure.",
@@ -769,6 +803,7 @@ const STAGE_DRILLS = [
     diagram: "zones",
     focus: "Two-player combination play is a natural next step once individual technique and basic possession are solid.",
     description: "Two players practice the classic give-and-go: pass to a teammate, sprint past a defender, and receive the return pass in space.",
+    progressions: { easier: "Fully passive defender.", harder: "Semi-active defender, finish first-time." },
     coachInstructions: [
       "Set up a simple lane with a passive defender in the middle.",
       "Player A passes to Player B, then immediately sprints past the defender.",
@@ -927,19 +962,29 @@ function generatePracticeForMe(ageGroup){
   const pool = allDrills.filter(d => d.ageGroup === ageGroup);
   if (pool.length === 0) { showToast('No drills found for that age group yet'); return; }
 
-  const seenCategories = new Set();
+  const byPhase = { 'Warm-Up': [], 'Main Practice': [], 'Game Phase': [] };
+  pool.forEach(d => byPhase[getPhase(d.category)].push(d));
+
   const picks = [];
-  for (const d of pool) {
-    if (!seenCategories.has(d.category)) {
+  // 1 warm-up, 2 main practice (different categories if possible), 1 game-phase drill
+  if (byPhase['Warm-Up'].length) picks.push(byPhase['Warm-Up'][Math.floor(Math.random() * byPhase['Warm-Up'].length)]);
+
+  const mainPool = [...byPhase['Main Practice']];
+  const seenCats = new Set();
+  for (const d of mainPool) {
+    if (picks.length >= 3 && !seenCats.has(d.category)) { /* keep looking for variety */ }
+    if (!seenCats.has(d.category) && picks.filter(p => getPhase(p.category) === 'Main Practice').length < 2) {
       picks.push(d);
-      seenCategories.add(d.category);
+      seenCats.add(d.category);
     }
-    if (picks.length >= 4) break;
   }
-  // If we didn't reach 4 (not enough category variety), fill with remaining drills
+  if (byPhase['Game Phase'].length) picks.push(byPhase['Game Phase'][Math.floor(Math.random() * byPhase['Game Phase'].length)]);
+
+  // Fallback: if any phase came up empty for this age group, fill from whatever's left in the pool
+  const usedIds = new Set(picks.map(d => d.id));
   for (const d of pool) {
     if (picks.length >= 4) break;
-    if (!picks.includes(d)) picks.push(d);
+    if (!usedIds.has(d.id)) { picks.push(d); usedIds.add(d.id); }
   }
 
   currentPlanDrillIds = picks.map(d => d.id);
@@ -948,7 +993,7 @@ function generatePracticeForMe(ageGroup){
   prefillPlanTitle = `${stage ? stage.name : ageGroup} Practice — ${today}`;
   activeTab = 'builder';
   render();
-  showToast('Practice built! Review and save below.');
+  showToast('Practice built! Warm-up → Main → Game, ready to review.');
 }
 
 function libraryHtml(){
@@ -1037,6 +1082,13 @@ function instructionsHtml(d){
         <h4>🏠 Training alone / with a parent</h4>
         <ol>${d.soloInstructions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ol>
       ` : ''}
+      ${d.progressions ? `
+        <h4>🎚️ Adjust the difficulty</h4>
+        <ol>
+          <li><strong>Too easy?</strong> ${escapeHtml(d.progressions.harder)}</li>
+          <li><strong>Too hard?</strong> ${escapeHtml(d.progressions.easier)}</li>
+        </ol>
+      ` : ''}
     </div>
   `;
 }
@@ -1044,6 +1096,10 @@ function instructionsHtml(d){
 function builderHtml(){
   const selected = currentPlanDrillIds.map(id => allDrills.find(d => d.id === id)).filter(Boolean);
   const totalTime = selected.reduce((sum, d) => sum + (d.duration || 0), 0);
+
+  const grouped = { 'Warm-Up': [], 'Main Practice': [], 'Game Phase': [] };
+  selected.forEach(d => grouped[getPhase(d.category)].push(d));
+
   return `
     <h2>Build a Practice Plan</h2>
     <p class="sectionsub">Add drills from the Library tab, then save your plan below.</p>
@@ -1053,14 +1109,17 @@ function builderHtml(){
         <input type="text" id="planTitle" placeholder="e.g. Week 3 — Golden Age Focus" value="${escapeHtml(prefillPlanTitle)}">
       </div>
       ${selected.length === 0 ? `<p class="empty">No drills added yet — head to the Drill Library and tap "+ Add to Plan."</p>` : `
-        <ul class="planlist">
-          ${selected.map(d => `
-            <li>
-              <span>${escapeHtml(d.name)} <span style="font-weight:500;color:var(--ink-soft);">· ${d.duration} min</span></span>
-              <button data-removeid="${d.id}">✕</button>
-            </li>
-          `).join('')}
-        </ul>
+        ${PHASE_ORDER.map(phase => grouped[phase].length === 0 ? '' : `
+          <p style="font-size:11px;text-transform:uppercase;font-weight:800;color:var(--grass-deep);letter-spacing:.05em;margin:14px 0 6px;">${phase}</p>
+          <ul class="planlist">
+            ${grouped[phase].map(d => `
+              <li>
+                <span>${escapeHtml(d.name)} <span style="font-weight:500;color:var(--ink-soft);">· ${d.duration} min</span></span>
+                <button data-removeid="${d.id}">✕</button>
+              </li>
+            `).join('')}
+          </ul>
+        `).join('')}
         <p class="sectionsub">Total time: ~${totalTime} min</p>
       `}
       <button class="savebtn" id="savePlanBtn" ${selected.length === 0 ? 'disabled' : ''}>Save Practice Plan</button>
