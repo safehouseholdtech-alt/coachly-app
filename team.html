@@ -187,6 +187,10 @@ function renderDiagram(type){
   } else if (type === 'openarea'){
     [[80,50],[150,40],[220,60],[110,100],[190,110]].forEach(([x,y]) => shapes += player(x,y,'#2FA84F'));
     shapes += label(150,135,'Free dribbling — freeze on the whistle');
+  } else if (type === 'channel'){
+    shapes += `<rect x="60" y="35" width="180" height="80" fill="none" stroke="#16281E" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+    shapes += player(90,75,'#FF6B5E') + player(210,75,'#48C6EF');
+    shapes += label(150,20,'1v1 in a narrow channel');
   }
   return `<div class="diagram-wrap"><svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">${pitch}${shapes}</svg></div>`;
 }
